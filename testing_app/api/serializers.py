@@ -8,7 +8,12 @@ User = get_user_model()
 class UserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"    #['username','email','roll_num','sac_role','phn_num','profile_pic','bio','is_sac','is_admin']
+        fields = "__all__"
+
+class SmallUserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username','email','roll_num','profile_pic','phn_num','file_type','is_admin']
 
 class Lost_FoundSerializer(ModelSerializer):
     class Meta:
@@ -17,7 +22,7 @@ class Lost_FoundSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = UserSerializer(instance.username).data
+        response['username'] = SmallUserSerializer(instance.username).data
         return response
 
 
@@ -28,7 +33,7 @@ class LST_CommentsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = UserSerializer(instance.username).data
+        response['username'] = SmallUserSerializer(instance.username).data
         return response
 
 class PostTableSerializer(ModelSerializer):
@@ -38,7 +43,7 @@ class PostTableSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = UserSerializer(instance.username).data
+        response['username'] = SmallUserSerializer(instance.username).data
         return response
 
 class post_CommentsSerializer(ModelSerializer):
@@ -48,7 +53,7 @@ class post_CommentsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = UserSerializer(instance.username).data
+        response['username'] = SmallUserSerializer(instance.username).data
         return response
 
 class EventsSerializer(ModelSerializer):
@@ -68,20 +73,20 @@ class AlertsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = UserSerializer(instance.username).data
+        response['username'] = SmallUserSerializer(instance.username).data
         return response
-    
+
 class Alert_CommentsSerializer(ModelSerializer):
     class Meta:
-        model = models.ALERT_Comments 
+        model = models.ALERT_Comments
         fields = "__all__"
-        
+
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = UserSerializer(instance.username).data
+        response['username'] = SmallUserSerializer(instance.username).data
         return response
-        
-        
+
+
 class Clubs_SportsSerializer(ModelSerializer):
     class Meta:
         model = models.Clubs_Sports
@@ -123,8 +128,37 @@ class Post_LikeSerializer(ModelSerializer):
         response = super().to_representation(instance)
         response['username'] = UserSerializer(instance.username).data
         return response
-        
 
+class NotificationsSerializer(ModelSerializer):
+    class Meta:
+        model = models.Notifications
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
+
+class MessangerSerializer(ModelSerializer):
+    class Meta:
+        model = models.Messanger
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['message_sender'] = SmallUserSerializer(instance.message_sender).data
+        response['message_receiver'] = SmallUserSerializer(instance.message_receiver).data
+        return response
+
+class CALENDER_EVENTSerializer(ModelSerializer):
+    class Meta:
+        model = models.CalenderEvents
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
 
         
 
