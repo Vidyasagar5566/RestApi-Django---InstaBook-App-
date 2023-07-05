@@ -9,26 +9,93 @@ import uuid
 #workon testing
 
 
+
+
 class User(AbstractUser):
     email = models.CharField(default="",max_length=100,unique = True)
     username = models.CharField(default="-",max_length=100,unique = True)
     roll_num = models.CharField(default="",max_length=100)
     is_sac = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
-    phn_num = models.CharField(default="+91 0000 000 000",max_length=100)
+    is_faculty = models.BooleanField(default=False)
+    phn_num = models.CharField(default="+91 0000 000 000",max_length=15)
     profile_pic = models.ImageField(upload_to = 'pics',default = 'static/img.png')
+    file_type = models.CharField(default="0",max_length=100)
     bio = models.CharField(max_length = 400,default="@")
     sac_role = models.CharField(default="@",max_length=100)
     admin_role = models.CharField(default="@",max_length=100)
+    faculty_role = models.CharField(default="@",max_length=100)
     date_of_birth = models.DateTimeField(default=timezone.now)
     high_post_count = models.IntegerField(default=0)
     high_lst_count = models.IntegerField(default=0)
+    branch = models.CharField(default="@",max_length=100)
+    batch = models.CharField(default="@",max_length=100)
+    year = models.IntegerField(default=0)
+    token = models.TextField(default="dfv",max_length=500)
+    notif_settings = models.CharField(default="111111111",max_length=100)
+    notif_seen = models.BooleanField(default=True)
+    notif_count = models.IntegerField(default=0)
+    notif_ids = models.TextField(default="@")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return str(self.email)
+
+
+class Notifications(models.Model):
+    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='Notification_username')
+    title = models.CharField(max_length=100,default="")
+    description = models.TextField(default="")
+    branch = models.CharField(default="@",max_length=100)
+    batch = models.CharField(default="@",max_length=100)
+    year = models.CharField(default="@",max_length=100)
+    img = models.FileField(upload_to = 'pics',default = 'static/img.png')
+    img_ratio = models.FloatField(default = 1.00)
+    posted_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-posted_date']
+
+    def __str__(self):
+        return str(self.title)
+
+class Messanger(models.Model):
+    message_sender = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='message_sender')
+    message_receiver = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='message_receiver')
+    message_body = models.TextField(default="")
+    message_file = models.FileField(upload_to = 'pics',default = 'static/img.png')
+    messag_file_type = models.CharField(default="@",max_length=100)
+    message_body_file = models.CharField(default="@",max_length=100)
+    message_replyto = models.TextField(default="@")
+    message_seen = models.BooleanField(default=False)
+    message_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-message_date']
+
+    def __str__(self):
+        return str(self.message_sender)
+
+class CalenderEvents(models.Model):
+    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='CalenderEvent_user')
+    cal_event_type = models.CharField(max_length=100,default="self")
+    title = models.CharField(max_length=100,default="")
+    description = models.TextField(default="")
+    calender_date_file = models.FileField(upload_to = 'pics',default = 'static/img.png')
+    file_type = models.CharField(default="@",max_length=100)
+    branch = models.CharField(default="@",max_length=100)
+    year = models.CharField(default="@",max_length=100)
+    event_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-event_date']
+
+    def __str__(self):
+        return str(self.username)
+
 
 
 
@@ -119,9 +186,10 @@ class Events(models.Model):
     img_ratio = models.FloatField(default = 1.00)
     event_vedio = models.FileField(upload_to = 'pics',default = 'static/img.png')
     vedio_ratio = models.FloatField(default = 1.00)
-    event_updates = models.TextField(default="")
+    event_updates = models.TextField(default="updates")
     is_like = models.BooleanField(default=False)
     like_count = models.IntegerField(default=0)
+    event_date = models.DateTimeField(default="2023-06-30T08:23:17Z")
     posted_date = models.DateTimeField(default=timezone.now)
 
     class Meta:
