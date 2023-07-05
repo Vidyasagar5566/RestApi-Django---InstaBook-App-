@@ -5,6 +5,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
 
 
+
 from .models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
@@ -14,7 +15,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     fieldsets = (
-        (None, {'fields': ('email', 'password', 'username', 'last_login','roll_num','is_sac','is_admin','phn_num','profile_pic','bio','sac_role','admin_role','high_post_count')}),
+        (None, {'fields': ('email', 'password', 'username', 'last_login','roll_num','is_sac','is_admin','is_faculty','phn_num','profile_pic','file_type','bio','sac_role','admin_role','faculty_role','branch','batch','year','token','notif_settings','notif_seen','notif_count','notif_ids')}),
         ('Permissions', {'fields': (
             'is_active',
             'is_staff',
@@ -58,6 +59,9 @@ admin.site.register(models.Clubs_Sports_likes)
 admin.site.register(models.Mess_table)
 admin.site.register(models.Academic_table)
 admin.site.register(models.Time_table)
+admin.site.register(models.Notifications)
+admin.site.register(models.Messanger)
+admin.site.register(models.CalenderEvents)
 
 
 
