@@ -15,7 +15,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     fieldsets = (
-        (None, {'fields': ('email', 'password', 'username', 'last_login','roll_num','is_sac','is_admin','is_faculty','phn_num','profile_pic','file_type','bio','sac_role','admin_role','faculty_role','branch','batch','year','token','notif_settings','notif_seen','notif_count','notif_ids')}),
+        (None, {'fields': ('email', 'password','platform', 'username', 'last_login','roll_num','is_sac','is_admin','is_faculty','phn_num','profile_pic','file_type','bio','sac_role','admin_role','faculty_role','branch','batch','year','token','notif_settings','notif_seen','notif_count','notif_ids')}),
         ('Permissions', {'fields': (
             'is_active',
             'is_staff',
@@ -34,7 +34,7 @@ class UserAdmin(DjangoUserAdmin):
 #        ),
 #    )
 
-    list_display = ('email', 'username', 'is_staff', 'last_login')
+    list_display = ('email', 'username', 'is_staff', 'last_login','platform')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('email',)
     ordering = ('email',)
@@ -58,10 +58,15 @@ admin.site.register(models.Clubs_Sports_likes)
 #admin.site.register(models.Clubs_Sports_files)
 admin.site.register(models.Mess_table)
 admin.site.register(models.Academic_table)
-admin.site.register(models.Time_table)
+#admin.site.register(models.Time_table)
 admin.site.register(models.Notifications)
-admin.site.register(models.Messanger)
+#admin.site.register(models.Messanger)
 admin.site.register(models.CalenderEvents)
+admin.site.register(models.Reports)
+admin.site.register(models.CalenderSub)
+admin.site.register(models.CalenderSubYears)
+admin.site.register(models.CalenderSubFiles)
+admin.site.register(models.Ratings)
 
 
 
