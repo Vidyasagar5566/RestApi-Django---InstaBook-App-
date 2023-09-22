@@ -160,11 +160,43 @@ class CALENDER_EVENTSerializer(ModelSerializer):
         response['username'] = SmallUserSerializer(instance.username).data
         return response
 
-        
 
+class CalenderSubSerializer(ModelSerializer):
+    class Meta:
+        model = models.CalenderSub
+        fields = "__all__"
 
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
 
-    
+class CalenderSubYearsSerializer(ModelSerializer):
+    class Meta:
+        model = models.CalenderSubYears
+        fields = "__all__"
 
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
 
+class CalenderSubFilesSerializer(ModelSerializer):
+    class Meta:
+        model = models.CalenderSubFiles
+        fields = "__all__"
 
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
+
+class RatingsSerializer(ModelSerializer):
+    class Meta:
+        model = models.Ratings
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
