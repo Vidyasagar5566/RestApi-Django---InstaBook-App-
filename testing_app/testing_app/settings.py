@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'api',
+    'api2',
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.admin',
@@ -47,7 +48,7 @@ INSTALLED_APPS = [
 
 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/vidyasag5566/testing/testing_app/testing_app/GOOGLE_APPLICATION_CREDENTIALS.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/StudentCommunity/RestApi-Django---InstaBook-App-/testing_app/testing_app/GOOGLE_APPLICATION_CREDENTIALS.json"
 
 # Optional ONLY IF you have initialized a firebase app already:
 # Visit https://firebase.google.com/docs/admin/setup/#python
@@ -162,7 +163,7 @@ USE_TZ = False
 
 
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')

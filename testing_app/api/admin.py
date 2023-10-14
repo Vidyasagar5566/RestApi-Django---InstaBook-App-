@@ -15,7 +15,18 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     fieldsets = (
-        (None, {'fields': ('email', 'password','platform', 'username', 'last_login','roll_num','is_sac','is_admin','is_faculty','phn_num','profile_pic','file_type','bio','sac_role','admin_role','faculty_role','branch','batch','year','token','notif_settings','notif_seen','notif_count','notif_ids')}),
+        (None, {'fields': ('email', 'password', 'username','domain',
+
+                           'roll_num','phn_num','profile_pic','file_type','bio','course','branch','batch','year','skills','date_of_birth',
+
+                           'is_student_admin','is_admin','is_faculty','is_instabook','student_admin_role','admin_role','faculty_role','instabook_role',
+
+                           'user_mark','star_mark',
+
+                           'notif_settings','notif_seen','notif_count','notif_ids',
+
+                           'token','platform','is_details',
+                            )}),
         ('Permissions', {'fields': (
             'is_active',
             'is_staff',
@@ -43,7 +54,6 @@ class UserAdmin(DjangoUserAdmin):
 
 
 # Register your models here.
-#admin.site.register(models.User)
 admin.site.register(models.PostTable)
 admin.site.register(models.post_Likes)
 admin.site.register(models.post_Comments)
@@ -53,20 +63,35 @@ admin.site.register(models.Events)
 admin.site.register(models.Event_likes)
 admin.site.register(models.Alerts)
 admin.site.register(models.ALERT_Comments)
-admin.site.register(models.Clubs_Sports)
-admin.site.register(models.Clubs_Sports_likes)
-#admin.site.register(models.Clubs_Sports_files)
-admin.site.register(models.Mess_table)
-admin.site.register(models.Academic_table)
-#admin.site.register(models.Time_table)
 admin.site.register(models.Notifications)
 #admin.site.register(models.Messanger)
 admin.site.register(models.CalenderEvents)
-admin.site.register(models.Reports)
-admin.site.register(models.CalenderSub)
-admin.site.register(models.CalenderSubYears)
-admin.site.register(models.CalenderSubFiles)
+
+
+
+admin.site.register(models.UniBranches)
+admin.site.register(models.BranchSub)
+admin.site.register(models.BranchSubYears)
+admin.site.register(models.BranchSubFiles)
 admin.site.register(models.Ratings)
+
+admin.site.register(models.Reports)
+
+admin.site.register(models.Mess_table)
+admin.site.register(models.Academic_table)
+#admin.site.register(models.Time_table)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

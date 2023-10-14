@@ -13,7 +13,7 @@ class UserSerializer(ModelSerializer):
 class SmallUserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username','email','roll_num','profile_pic','phn_num','file_type','is_admin']
+        fields = ['username','domain','email','user_mark','star_mark','profile_pic','phn_num','file_type','is_student_admin']
 
 class Lost_FoundSerializer(ModelSerializer):
     class Meta:
@@ -87,37 +87,7 @@ class Alert_CommentsSerializer(ModelSerializer):
         return response
 
 
-class Clubs_SportsSerializer(ModelSerializer):
-    class Meta:
-        model = models.Clubs_Sports
-        fields = "__all__"
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['username'] = UserSerializer(instance.username).data
-        response['head'] = UserSerializer(instance.head).data
-        return response
-
-
-#class Clubs_Sports_filesSerializer(ModelSerializer):
-#    class Meta:
-#        model = models.Clubs_Sports_files
-#        fields = "__all__"
-
-class Mess_tableSerializer(ModelSerializer):
-    class Meta:
-        model = models.Mess_table
-        fields = "__all__"
-
-class Academic_tableSerializer(ModelSerializer):
-    class Meta:
-        model = models.Academic_table
-        fields = "__all__"
-
-class Time_tableSerializer(ModelSerializer):
-    class Meta:
-        model = models.Time_table
-        fields = "__all__"
 
 class Post_LikeSerializer(ModelSerializer):
     class Meta:
@@ -161,42 +131,25 @@ class CALENDER_EVENTSerializer(ModelSerializer):
         return response
 
 
-class CalenderSubSerializer(ModelSerializer):
-    class Meta:
-        model = models.CalenderSub
-        fields = "__all__"
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
-        return response
 
-class CalenderSubYearsSerializer(ModelSerializer):
-    class Meta:
-        model = models.CalenderSubYears
-        fields = "__all__"
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
-        return response
 
-class CalenderSubFilesSerializer(ModelSerializer):
-    class Meta:
-        model = models.CalenderSubFiles
-        fields = "__all__"
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
-        return response
 
-class RatingsSerializer(ModelSerializer):
-    class Meta:
-        model = models.Ratings
-        fields = "__all__"
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
-        return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

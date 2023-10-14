@@ -22,6 +22,83 @@ from django.utils.timezone import localtime
 #        data = request.query_params
 
 
+domains = {
+
+'nitt.edu'  : 'Nit Trichy',
+'nitk.edu.in' : 'Nit Surathkal',
+'nitrkl.ac.in' : 'Nit Rourkela',
+'nitw.ac.in': ' Nit Warangal',
+'nitc.ac.in'   :'Nit Calicut',
+'vnit.ac.in':  'Nit Nagpur',
+'nitdgp.ac.in' :  'Nit Durgapur',
+'nits.ac.in':    'Nit Silchar',
+'mnit.ac.in':   'Nit Jaipur',
+'mnnit.ac.in' : 'Nit Allahabad',
+'nitkkr.ac.in':   'Nit Kurukshetra',
+'nitj.ac.in'  :' Nit Jalandhar',
+'svnit.ac.in': ' Nit Surat',
+'nitm.ac.in' : 'Nit Meghalaya',
+'nitp.ac.in' : 'Nit Patna',
+'nitrr.ac.in' : 'Nit Raipur',
+'nitsri.ac.in' : 'Nit Srinagar',
+'manit.ac.in'  :'Nit Bhopal',
+'nita.ac.in'  :'Nit Agarthala',
+'nitgoa.ac.in' :  'Nit Goa',
+'nitjsr.ac.in' : 'Nit Jamshedpur',
+'nitmanipur.ac.in':  'Nit Manipur',
+'nith.ac.in'   : 'Nit Hamper',
+'nituk.ac.in'  : ' Nit Uttarakhand',
+'nitpy.ac.in' : 'Nit Puducherry',
+'nitap.ac.in' : 'Nit ArunaChalPradesh',
+'nitsikkim.ac.in':  'Nit Sikkim',
+'nitdelhi.ac.in' : 'Nit Delhi',
+'nitmz.ac.in': 'Nit Mizoram',
+'nitnagaland.ac.in' : 'Nit Nagaland',
+'nitandhra.ac.in' : 'Nit AndhraPradesh',
+
+
+
+##IITS
+
+'iitm.ac.in' : 'IIT Madras',
+'iitd.ac.in' : 'IIT Delhi',
+'iitb.ac.in' : 'IIT Bombay',
+'iitk.ac.in' : 'IIT Kanpur',
+'iitr.ac.in' : 'IITR Rookee',
+'iitkgp.ac.in' : 'IIT Kharagpur',
+'iitg.ac.in' : 'IIT Guwahati',
+'iith.ac.in' : 'IIT Hyderabad',
+'iitbhu.ac.in' :  'IIT BHU',
+'iitism.ac.in'  :  'IIT ISM Dhanbad',
+'iiti.ac.in'  : 'IIT Indore',
+'iitrpr.ac.in'  : 'IIT Rupar',
+'iitmandi.ac.in' :   'IIT Mandi',
+'iitgn.ac.in'   :  'IIT Gandhinagar',
+'iitj.ac.in'   : 'IIT Jodhpur',
+'iitp.ac.in'   :     'IIT Patna',
+'iitbbs.ac.in'  :   'IIT Bhubaneswar',
+'iittp.ac.in'   :  'IIT Tirupati',
+'iitpkd.ac.in'  :  'IIT Palakkad',
+'iitjammu.ac.in' :   'IIT Jammu',
+'iitdh.ac.in'    : 'IIT Dharwad',
+'iitbhilai.ac.in'  :  'IIT Bhilai'
+
+    }
+
+
+def bulk_notifications(fcm_tokens,title,description):
+    div = len(fcm_tokens)//100
+    for i in range(div+1):
+        message = messaging.MulticastMessage(
+                    notification=messaging.Notification(
+                    title=title,
+                    body=description,
+                    ),
+                    tokens=fcm_tokens[i*100:(i+1)*100],
+                    data={"key1": "value1", "key2": "value2"},
+                    )
+        response = messaging.send_multicast(message)
+
 
 class SendNotifications(APIView):
     permission_classes = [IsAuthenticated, ]
@@ -29,60 +106,29 @@ class SendNotifications(APIView):
 
     def post(self,request):
         data = request.data
-        data1 = Message(
-            notification=Notification(title= data['title'], body= data['description'],image="https://testing5566.s3.amazonaws.com/pics/scaled_IMG-20230403-WA0019_nBt9IOM.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA33TUEPX6FOZRQ2MY%2F20230523%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20230523T083943Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d41894585e88878f4537f8a450c92a2f869e9b93cdbcf0396dc547574316dc63"),
-            )
         users = User.objects.all()
+        fcm_tokens = []
         for i in users:
             if i.notif_settings[data['notiff_sett']] == '1' and i.token != "dfv":
-                try:
-                    device = FCMDevice()
-                    device.registration_id  = i.token
-                    device.name = i.username
-                    device.type = i.platform
-                    device.save()
-                    device.send_message(data1)
-
-                except:
-                    try:
-                        device = FCMDevice.objects.get(registration_id = i.token)
-                        device.name = i.username
-                        device.type = i.platform
-                        device.save()
-                        device.send_message(data1)
-                    except:
-                        a = 10
+                fcm_tokens.append(i.token)
+        bulk_notifications(fcm_tokens,data['title'],data['description'])
         return Response({"error":False})
 
     def put(self,request):
         user = request.user
         data = request.data
-        data1 = Message(
-            notification=Notification(title = user.email, body= "Gave Announcement : " + data['title'] + " : " + data['description']),
-            #topic="Optional topic parameter: Whatever you want",
-            )
         users = User.objects.all()
+        fcm_tokens = []
         for i in users:
             if data['notif_year'][user.year - 1] == "1" and (user.branch in data['notif_branchs']):
                 i.notif_seen = False
                 i.notif_count += 1
                 i.save()
                 if i.notif_settings[7] == '1' and i.token != "dfv":
-                    try:
-                        device = FCMDevice()
-                        device.registration_id  = i.token
-                        device.name = i.username
-                        device.save()
-                        device.send_message(data1)
-                    except:
-                        try:
-                            device = FCMDevice.objects.get(registration_id = i.token)
-                            device.name = i.username
-                            device.save()
-                            device.send_message(data1)
-                        except:
-                            a = 10
+                    fcm_tokens.append(i.token)
+        bulk_notifications(fcm_tokens,user.email,"Gave Announcement : " + data['title'] + " : " + data['description'])
         return Response({"error":False})
+
 
 
 
@@ -91,12 +137,7 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            user = User.objects.get(email = "guest@nitc.ac.in")
-            user1 = User.objects.get(email = "testing5566@gmail.com")
-
-            all_files = models.CalenderSubFiles.objects.all()
-
-
+            user = User.objects.get(email = 'testing5566@gmail.com')
 
         except:
             error = True
@@ -122,38 +163,30 @@ class Register_EMAIL_check(APIView):
         password = data['email'] + "1234"
         try:
             user = User.objects.get(email = data["email"])
-            #try:
-            #    if user.password == user.email + "1234":
-            #        x = roll_num  + str(random.randint(100,10000))
-            #        user.password1 = x
-            #        user.password = x
-            #        user.save()
-            #        return Response({"error":False,"password":x})
-            #    else:
-            #        return Response({"error":False,"password":user.password1})
-            #except:
-            #    a = 0
-            password = "@Vidyasag1234"   #data['email'] + "1234"
             return Response({"error":False,"password":user.password1})
         except:
             email = data['email']
-            lst = email.split('_')
-            if len(lst) == 1:
-                a = email.split('@')[0]
-                username = a[0].upper() + a[1:]
-                roll_num = "ADMIN"
+            check_email = email.split('@')
+            if 'nit' in check_email[1] or 'iit' in check_email[1] or 'iit' in check_email[1]:
+                lst = email.split('_')
+                if len(lst) == 1:
+                    a = email.split('@')[0]
+                    username = a[0].upper() + a[1:]
+                    roll_num = "ADMIN"
+                else:
+                    a = lst[0]
+                    username = a[0].upper() + a[1:]
+                    roll_num = email.split('_')[1][:9]
+                profile_pic = "static/profile.jpg"
+                password = "@Vidyasag1234"        #email + "1234" #str(random.randint(10000,1000000))
+                try:
+                    user = User.objects.create_user(email = email,username=username,password=password,password1=password,roll_num = roll_num.upper(),profile_pic = profile_pic)
+                except:
+                    x = random.randint(0,10000)
+                    user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,roll_num = roll_num.upper(),profile_pic = profile_pic)
+                return Response({"error":False,"password":password})
             else:
-                a = lst[0]
-                username = a[0].upper() + a[1:]
-                roll_num = email.split('_')[1][:9]
-            profile_pic = "static/profile.jpg"
-            password = "@Vidyasag1234"        #email + "1234" #str(random.randint(10000,1000000))
-            try:
-                user = User.objects.create_user(email = email,username=username,password=password,password1=password,roll_num = roll_num.upper(),profile_pic = profile_pic)
-            except:
-                x = random.randint(0,10000)
-                user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,roll_num = roll_num.upper(),profile_pic = profile_pic)
-            return Response({"error":False,"password":password})
+                return Response({"error":True,"text":'email_desnt match'})
         return Response({"error":error,"password":password})
 
 
@@ -249,13 +282,15 @@ class LST_list(APIView):
     def get(self,request):
         error = False
         try:
-            try:
-                data = request.query_params
-                start = int(data['num_list'])
-            except:
-                start = 0
+            data = request.query_params
+            start = int(data['num_list'])
+
             user = request.user
-            data1 = models.Lost_Found.objects.all()
+            data1 = []
+            if data['domain'] == 'All':
+                data1 = models.Lost_Found.objects.all()
+            else:
+                data1 = models.Lost_Found.objects.filter(domain = data['domain'])
             data1 = data1[start : 60 + start]
             data = []
             for i in data1:
@@ -279,6 +314,7 @@ class LST_list(APIView):
                 lst.img = ContentFile(base64.b64decode(data['file']),data['file_name'])
             else:
                 lst.img_ratio = 0.0
+            lst.domain = user.domain
             lst.title = data['title']
             lst.tag = data['tag']
             lst.description = data['description']
@@ -339,6 +375,7 @@ class LST_Comment_list(APIView):
             LST_list = models.Lost_Found.objects.get(id = int(data['lst_id']))
             new_comment = models.LST_Comments()
             new_comment.lst_cmnt_id = LST_list
+            new_comment.domain = user.domain
             new_comment.Comment = data['comment']
             new_comment.username = user
             new_comment.save()
@@ -391,13 +428,20 @@ class POST_list(APIView):
     def get(self,request):
         error = False
         try:
-            #user = User.objects.get(username = "srinivas")
+            data = request.query_params
+            start = int(data['num_list'])
             user = request.user
-            post_list1 = models.PostTable.objects.all()
+            post_list1 = []
+            if data['domain'] == 'All':
+                post_list1 = models.PostTable.objects.filter(all_universities = True)
+            else:
+                if user.domain == data['domain']:
+                    post_list1 = models.PostTable.objects.filter(domain = data['domain'])
+                else:
+                    post_list1 = models.PostTable.objects.filter(domain = data['domain'],all_universities = True)
+            post_list1 = post_list1[start : 4 + start]
             post_list = []
             for i in post_list1:
-                #if i.username.username == "Testing user" or i.username.username == "Testing User":
-                #    continue
                 if user.email in i.post_hiders:
                     continue
                 post_list.append(i)
@@ -425,9 +469,11 @@ class POST_list(APIView):
             data = request.data
             post = models.PostTable()
             post.username = user
+            post.domain = user.domain
             post.description = data['description']
             post.img = ContentFile(base64.b64decode(data['file']),data['file_name'])
             post.img_ratio = float(int(data['image_ratio']))
+            post.all_universities = data['is_all_university']
             post.save()
         except:
             error = True
@@ -486,6 +532,7 @@ class PST_CMNT_list(APIView):
             post_id = models.PostTable.objects.get(id = int(data['post_id']))
             post_cmnt.post_id = post_id
             post_cmnt.username = user
+            post_cmnt.domain = user.domain
             post_cmnt.Comment = data['comment']
             post_cmnt.save()
             post_id.comment_count += 1
@@ -580,8 +627,16 @@ class EVENT_list(APIView):
         error = False
         try:
             user = request.user
-            #user = User.objects.get(id = "1")
-            event_list = models.Events.objects.all()
+            data = request.query_params
+            start = int(data['num_list'])
+            if data['domain'] == 'All':
+                event_list = models.Events.objects.filter(all_universities = True)
+            else:
+                if user.domain == data['domain']:
+                    event_list = models.Events.objects.filter(domain = data['domain'])
+                else:
+                    event_list = models.Events.objects.filter(domain = data['domain'],all_universities = True)
+            event_list = event_list[start : 10 + start]
             for i in event_list:
                 try:
                     like = models.Event_likes.objects.filter(event_id = i,username = user)
@@ -607,10 +662,12 @@ class EVENT_list(APIView):
             event = models.Events()
             event.username = user
             event.title = data['title']
+            event.domain = user.domain
             event.description = data['description']
             event.event_img = ContentFile(base64.b64decode(data['file']),data['file_name'])
             event.img_ratio = float(int(data['image_ratio']))
             event.event_date = data['event_date']
+            event.all_universities = data['is_all_university']
             event.save()
 
         except:
@@ -639,6 +696,7 @@ class EVENT_LIKE_list(APIView):
             event = models.Events.objects.get(id = int(data['event_id']))
             event_like = models.Event_likes()
             event_like.username = user
+            event_like.domain = user.domain
             event_like.event_id = event
             event_like.save()
             event.like_count += 1
@@ -697,7 +755,16 @@ class ALERT_list(APIView):
     def get(self,request):
         error = False
         try:
-            data1 = models.Alerts.objects.all()
+            data = request.query_params
+            start = int(data['num_list'])
+            if data['domain'] == 'All':
+                data1 = models.Alerts.objects.filter(all_universities = True)
+            else:
+                if user.domain == data['domain']:
+                    data1 = models.Alerts.objects.filter(domain = data['domain'])
+                else:
+                    data1 = models.Alerts.objects.filter(domain = data['domain'],all_universities = True)
+            data1 = data1[start : 10 + start]
             user = request.user
             data = []
             for i in data1:
@@ -724,10 +791,12 @@ class ALERT_list(APIView):
                 alert.img_ratio = float(data['file_type'])
             else:
                 alert.img_ratio = 0.0
+            alert.domain = user.domain
             alert.title = data['title']
             alert.description = data['description']
             alert.allow_branchs = data['allow_branchs']
             alert.allow_years = data['allow_years']
+            alert.all_universities = data['is_all_university']
             alert.save()
 
         except:
@@ -782,6 +851,7 @@ class ALERT_CMNT_list(APIView):
             new_comment = models.ALERT_Comments()
             new_comment.alert_cmnt_id  = ALERT_list
             new_comment.Comment = data['comment']
+            new_comment.domain = user.domain
             new_comment.username = user
             if data['file_type'] != 0:
                 new_comment.img = ContentFile(base64.b64decode(data['base64file']),data['fileName'])
@@ -808,186 +878,6 @@ class ALERT_CMNT_list(APIView):
             alert = models.Alerts.objects.get(id = int(data['alert_id']))
             alert.comment_count -= 1
             alert.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-
-
-class CLUB_SPORT_list(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-    def get(self,request):
-        error = False
-        try:
-            data = request.query_params
-            user = request.user
-            #clubs_sports = models.Clubs_Sports.objects.filter(club_r_sport = 'sport')
-            clubs_sports = models.Clubs_Sports.objects.filter(club_r_sport = data['club_sport'])
-            for i in clubs_sports:
-                try:
-                    like = models.Clubs_Sports_likes.objects.filter(club_sport = i,username = user)
-                    if len(like) >= 1:
-                        i.is_like = True
-                    elif len(like) > 1:
-                        for i in range(len(like)-1):
-                            i.delete()
-                except:
-                    i.is_like = False
-            serializer = serializers.Clubs_SportsSerializer(clubs_sports,many=True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-# edding only club
-
-    def post(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.data
-            try:
-                clubs_sports = models.Clubs_Sports.objects.get(username = user)
-            except:
-                clubs_sports = models.Clubs_Sports()
-            if data['image_type'] == "file":
-                clubs_sports.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
-            clubs_sports.title = data['title']
-            clubs_sports.club_r_sport = data['club_fest']
-            clubs_sports.username = user
-            clubs_sports.head = User.objects.get(email = data['email'])
-            clubs_sports.team_members = data['team_members']
-            clubs_sports.description = data['description']
-            clubs_sports.websites = data['websites']
-            clubs_sports.save()
-
-        except:
-            error = True
-        return Response({'error':error})
-
-
-# edditing only sport
-
-class CLUB_SPORT_edit(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            user = request.user
-            clubs_sports = models.Clubs_Sports.objects.get(username = user)
-            serializer = serializers.Clubs_SportsSerializer(clubs_sports,many=True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-
-    def post(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.data
-            try:
-                clubs_sports = models.Clubs_Sports.objects.get(username = user)
-            except:
-                clubs_sports = models.Clubs_Sports()
-            if data['image_type'] == "file":
-                clubs_sports.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
-            clubs_sports.title = data['title']
-            clubs_sports.club_r_sport = 'sport'
-            clubs_sports.username = user
-            clubs_sports.head = User.objects.get(email = data['email'])
-            clubs_sports.team_members = data['team_members']
-            clubs_sports.description = data['description']
-            clubs_sports.websites = data['websites']
-            clubs_sports.sport_ground = data['sport_ground']
-            if data['image2_type'] == "file":
-                clubs_sports.sport_ground_img = ContentFile(base64.b64decode(data['file1']),data['file_name1'])
-            clubs_sports.save()
-
-        except:
-            error = True
-        return Response({'error':error})
-
-
-
-class CLUB_SPORT_like_list(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            user = request.user
-            club_sport = models.Clubs_Sports.objects.get(id = int(data['club_sport_id']))
-            club_sport_like = models.Clubs_Sports_likes()
-            club_sport_like.username = user
-            club_sport_like.club_sport  = club_sport
-            club_sport_like.save()
-            club_sport.like_count += 1
-            club_sport.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-    def delete(self,request):
-        error = False
-        try:
-            data = request.query_params
-            user = request.user
-            club_sport = models.Clubs_Sports.objects.get(id = int(data['club_sport_id']))
-            try:
-                like = models.Clubs_Sports_likes.objects.get(username = user,club_sport = club_sport)
-                like.delete()
-            except:
-                like = models.Clubs_Sports_likes.objects.filter(username = user,club_sport = club_sport)
-                for i in like:
-                    i.delete()
-            club_sport.like_count -= 1
-            club_sport.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-
-
-
-
-class CLUB_SPORT_MEMB(APIView):
-
-    def get(self,request):
-        error = False
-        try:
-            data = request.query_params
-            club_mem = data["team_mem"].split('#')
-            club_mem_data = []
-            for i in club_mem:
-                try:
-                    user = User.objects.get(email = i)
-                    club_mem_data.append(user)
-                except:
-                    continue
-            #user = User.objects.get(username = data['club_name'])
-            #user = User.objects.get(username = "cricket")
-            #club_files = user.post_table_username.all()
-            serializer = serializers.UserSerializer(club_mem_data, many=True)
-
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            user = User.objects.get(username = data['club_sport'])
-            #user = User.objects.get(username = "cricket")
-            club_files = user.post_table_username.all()
-            serializer = serializers.PostTableSerializer(club_files, many=True)
-            return Response(serializer.data)
         except:
             error = True
         return Response({'error':error})
@@ -1044,277 +934,8 @@ class PEOFILE_list(APIView):
         return Response({'error':error})
 
 
-class SAC_list(APIView):
-
-    def get(self,request):
-        error = False
-        try:
-            data = User.objects.filter(is_sac = True)
-            serializer = serializers.UserSerializer(data, many=True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
 
 
-
-
-class MESS_list(APIView):
-
-    def get(self,requesr):
-        error = False
-        try:
-            mess = models.Mess_table.objects.all()
-            serializer = serializers.Mess_tableSerializer(mess,many = True)
-            data = list(serializer.data)
-            data.reverse()
-            return Response(data)
-        except:
-            error = True
-        return Response({'error':error})
-
-
-
-
-
-class ACADEMIC_list(APIView):
-
-    def get(self,requesr):
-        error = False
-        try:
-            academic = models.Academic_table.objects.all()
-            serializer = serializers.Academic_tableSerializer(academic,many = True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-
-
-# using to get all subjects
-class CALENDER_DATE_SUBS(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            data = request.query_params
-            all_sub_names = models.CalenderSub.objects.filter(sub_id = data['sub_id'])
-            serializer = serializers.CalenderSubSerializer(all_sub_names,many = True)
-            res = serializer.data
-            res.reverse()
-            return Response(res)
-        except:
-            error = True
-        return Response({'error':error})
-
-    #POSTING NEW SUBJECT
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            sub = models.CalenderSub()
-            sub.username = request.user
-            sub.sub_name = data['sub_name']
-            sub.sub_id = data['sub_id']
-            sub.save()
-            return Response({'error':error,'id':sub.id})
-        except:
-            error = True
-        return Response({'error':error,'id':"-1"})
-
-    #EDITING SUBJECT
-    def put(self,request):
-        error = False
-        try:
-            data = request.data
-            sub = models.CalenderSub.objects.get(id = int(data['sub_id']))
-            sub.sub_name = data['sub_name']
-            sub.save()
-
-        except:
-            error = True
-        return Response({'error':error})
-
-
-
-
-class CALENDER_SUB_YEARS(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            data = request.query_params
-            sub = models.CalenderSub.objects.get(id = int(data['sub_id']))
-            sub_years = sub.CalenderSub.all()
-            serializer = serializers.CalenderSubYearsSerializer(sub_years,many = True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-
-
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            sub = models.CalenderSub.objects.get(id = int(data['sub_id']))
-            new_year = models.CalenderSubYears()
-            new_year.username = request.user
-            new_year.sub_name = sub
-            new_year.year_name = data['year_name']
-            new_year.private = data['private']
-            new_year.save()
-            return Response({'error':error,'id':new_year.id})
-        except:
-            error = True
-        return Response({'error':error,'id':'-1'})
-
-
-    def put(self,request):
-        error = False
-        try:
-            data = request.data
-            year = models.CalenderSubYears.objects.get(id = int(data['year_id']))
-            year.year_name = data['year_name']
-            year.private = data['private']
-            year.save()
-
-        except:
-            error = True
-        return Response({'error':error})
-
-
-
-
-
-
-class CALENDER_SUB_FILES(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            data = request.query_params
-            year = models.CalenderSubYears.objects.get(id = int(data['year_id']))
-            all_files = year.CalenderSubYears.all()
-            serializer = serializers.CalenderSubFilesSerializer(all_files,many = True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            qns_file  = models.CalenderSubFiles()
-            qns_file.username = request.user
-            year = models.CalenderSubYears.objects.get(id = data['year_id'])
-            qns_file.year_id = year
-            qns_file.description = data['description']
-            qns_file.qn_ans_file = ContentFile(base64.b64decode(data['file']),data['file_name'])
-            qns_file.file_type = data['file_type']
-            qns_file.file_name = data['file_name']
-            qns_file.save()
-            return Response({'error':error,'id':qns_file.id})
-        except:
-            error = True
-        return Response({'error':error,'id':0})
-
-
-    def delete(self,request):
-        error = False
-        try:
-            data = request.data
-            file = models.CalenderSubFiles.objects.get(id = int(data['id']))
-            file.delete()
-        except:
-            error = True
-        return Response({'error':error})
-
-    def put(self,request):
-        error = False
-        try:
-            data = request.data
-            qns_file  = models.CalenderSubFiles.objects.get(id = int(data['id']))
-            user = User.objects.get(email = data['file_email'])
-            qns_file.username = user
-            year = models.CalenderSubYears.objects.get(id = data['year_id'])
-            qns_file.year_id = year
-            qns_file.description = data['description']
-            qns_file.qn_ans_file = ContentFile(base64.b64decode(data['file']),data['file_name'])
-            qns_file.file_type = data['file_type']
-            qns_file.file_name = data['file_name']
-            qns_file.save()
-            return Response({'error':error,'id':int(data['id'])})
-        except:
-            error = True
-        return Response({'error':error,'id':0})
-
-
-class RATINGS(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.query_params
-            sub = models.CalenderSub.objects.get(id = int(data['sub_id']))
-            all_ratings = sub.CalenderSub_ratings.all()
-            serializer = serializers.RatingsSerializer(all_ratings,many = True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-
-    def post(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.data
-            try:
-                sub_name = models.CalenderSub.objects.get(id = int(data['sub_id']))
-                rating  = models.Ratings.objects.get(username = user,sub_name = sub_name)
-                sub_name.tot_ratings_val = sub_name.tot_ratings_val - rating.rating + data['rating']
-                sub_name.save()
-                rating.rating = data['rating']
-                rating.save()
-                return Response({'error':error,'id':rating.id})
-            except:
-                rating  = models.Ratings()
-                rating.username = request.user
-                sub_name = models.CalenderSub.objects.get(id = int(data['sub_id']))
-                sub_name.tot_ratings_val += data['rating']
-                sub_name.num_ratings += 1
-                sub_name.save()
-                rating.sub_name = sub_name
-                rating.rating = data['rating']
-                rating.save()
-                return Response({'error':error,'id':rating.id})
-        except:
-            error = True
-        return Response({'error':error})
-
-
-    def delete(self,request):
-        error = False
-        try:
-            data = request.data
-            rating = models.Ratings.objects.get(id = int(data['id']))
-            sub_name = rating.sub_name
-            sub_name.tot_ratings_val -= rating.rating
-            sub_name.num_ratings -= 1
-            sub_name.save()
-            rating.delete()
-        except:
-            error = True
-        return Response({'error':error})
 
 
 class CALENDER_EVENTS_list(APIView):
@@ -1326,13 +947,14 @@ class CALENDER_EVENTS_list(APIView):
         error = False
         try:
             user = request.user
+            data = request.query_params
             dates = {}
-            #activities = models.Events.objects.all()
-            #for i in activities:
-            #    a = i.event_date
+            activities = models.Events.objects.filter(domain = data['domain'])
+            for i in activities:
+                a = i.event_date
                 #if str(a)[:10] not in dates:
-            #    dates[str(a) +'&&'+ i.title] = ""
-            cal_events =  models.CalenderEvents.objects.filter(username = user) | models.CalenderEvents.objects.filter(cal_event_type = "all")
+                dates[str(a) +'&&'+ i.title] = ""
+            cal_events =  models.CalenderEvents.objects.filter(username = user,domain = data['domain']) | models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'])
             for i in cal_events:
                 if i.cal_event_type == "self":
                     #if str(i.event_date)[:10] not in dates:
@@ -1388,6 +1010,7 @@ class CALENDER_EVENTS_list(APIView):
             calander_event.username = user
             calander_event.cal_event_type = data["cal_event_type"]
             calander_event.title = data['title']
+            calander_event.domain = user.domain
             calander_event.description = data['description']
             if data['file_type'] != '0':
                 calander_event.calender_date_file = ContentFile(base64.b64decode(data['file']),data['file_name'])
@@ -1432,108 +1055,6 @@ class CALENDER_EVENTS_list(APIView):
         except:
             error = True
         return Response({'error':error,'id':0})
-
-
-class TIME_TABLE(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            timetable = models.Time_table.objects.all()
-            serializer = serializers.Time_tableSerializer(timetable,many = True)
-            #return Response([serializer.data,[]])
-
-
-            user = request.user
-            dates = {}
-            activities = models.Events.objects.all()
-            for i in activities:
-                a = i.event_date
-                if str(a)[:10] not in dates:
-                    dates[str(a)[:10]] = ""
-            cal_events =  models.CalenderEvents.objects.filter(username = user) | models.CalenderEvents.objects.filter(cal_event_type = "all")
-            for i in cal_events:
-                if i.cal_event_type == "self":
-                    if str(i.event_date)[:10] not in dates:
-                        dates[str(i.event_date)[:10]] = ""
-                elif (i.year[user.year - 1] == '1') and (user.branch in i.branch):
-                    if str(i.event_date)[:10] not in dates:
-                        dates[str(i.event_date)[:10]] = ""
-            final_dates = list(dates.keys())
-            final_dates.sort()
-            return Response([serializer.data,final_dates])
-        except:
-            error = True
-        return Response({'error':error})
-
-
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            user = request.user
-            timetable = models.Time_table.objects.get(branch_name = data['branch_name'])
-            if data['day'] == "SUN":
-                timetable.sun = data['day_timetable']
-            elif data['day'] == "MON":
-                timetable.mon = data['day_timetable']
-            elif data['day'] == "TUE":
-                timetable.tue = data['day_timetable']
-            elif data['day'] == "WED":
-                timetable.wed = data['day_timetable']
-            elif data['day'] == "THU":
-                timetable.thu = data['day_timetable']
-            elif data['day'] == "FRI":
-                timetable.fri = data['day_timetable']
-            elif data['day'] == "SAT":
-                timetable.sat = data['day_timetable']
-            timetable.save()
-
-#data["_lights"] set notif for edit true or false;
-#data['notif_id'] in i.notif_ids
-            year = data['branch_name'][2]
-            branch = data['branch_name'][0:2]
-            class_slots = data['class_slot_division'].split('&')
-            data1 = Message(
-            notification=Notification(title = class_slots[0] + "Timetable Update", body= "Faculty: " + class_slots[2] +"Class status: " + class_slots[4]),
-            #topic="Optional topic parameter: Whatever you want",
-            )
-            if data["_lights"] == "true":
-                notif = models.Notifications()
-                notif.username = user
-                notif.title = class_slots[0] + "Timetable Update"
-                notif.description = "Faculty: " + class_slots[2] +"Class status: " + class_slots[4]
-                notif.branch = data['notif_id']
-                notif.save()
-
-            users = User.objects.all()
-            for i in users:
-                if (data['notif_id'] in i.notif_ids) and data["_lights"] == "true":
-                    i.notif_seen = False
-                    i.notif_count += 1
-                    i.save()
-                    if i.notif_settings[1] == '1' and i.token != "dfv":
-                        try:
-                            device = FCMDevice()
-                            device.registration_id  = i.token
-                            device.name = i.username
-                            device.save()
-                            device.send_message(data)
-                        except:
-                            try:
-                                device = FCMDevice.objects.get(registration_id = i.token)
-                                device.name = i.username
-                                device.save()
-                                device.send_message(data)
-                            except:
-                                a = 10
-
-        except:
-            error = True
-        return Response({'error':error})
-
 
 
 
@@ -1614,6 +1135,7 @@ class Notifications(APIView):
             user = request.user
             notif = models.Notifications()
             notif.username = user
+            notif.domain = user.domain
             notif.title = data['title']
             notif.description = data['description']
             notif.branch = data['notif_branchs']
@@ -1695,6 +1217,7 @@ class Messanger(APIView):
             message.message_sender = user
             message.message_receiver = recevier
             message.message_body = data['message_body']
+            message.domain = user.domain
             message.messag_file_type = data['messag_file_type']
             if data['messag_file_type'] != '0':
                 message.message_file = ContentFile(base64.b64decode(data['file']),data['file_name'])
@@ -1751,7 +1274,12 @@ class USER_Messanger(APIView):
         try:
             user = request.user
             data = request.query_params
-            users_list = User.objects.filter(email__startswith = data['username_match']) | User.objects.filter(username__startswith = data['username_match']) | User.objects.filter(roll_num__startswith = data['username_match'])
+            start = int(data['num_list'])
+            if data['domain'] == 'All':
+                users_list = User.objects.filter(email__startswith = data['username_match']) | User.objects.filter(username__startswith = data['username_match']) | User.objects.filter(roll_num__startswith = data['username_match'])
+            else:
+                users_list = User.objects.filter(email__startswith = data['username_match'],domain = data['domain']) | User.objects.filter(username__startswith = data['username_match'],domain = data['domain']) | User.objects.filter(roll_num__startswith = data['username_match'],domain = data['domain'])
+            users_list = users_list[start : 100 + start]
             serializer = serializers.SmallUserSerializer(users_list, many=True)
             return Response(serializer.data)
         except:
@@ -1792,54 +1320,6 @@ class USER_Messanger(APIView):
         return Response({'error':error})
 
 
-
-class SECURITY(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def post(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.data
-            Report = models.Reports()
-            Report.username = user
-            Report.report_belongs = data['report_belongs']
-            Report.description = data['description']
-            Report.save()
-
-            data = Message(
-                   notification=Notification(title= user.username + " Reported on " + data['report_belongs'] , body = data['description']),
-                   )
-            user1 = User.objects.get(email = "buddala_b190838ec@nitc.ac.in")
-            try:
-                device = FCMDevice()
-                device.registration_id  = user1.token
-                device.name = "Testing user"
-                device.save()
-                data = device.send_message(data)
-            except:
-                try:
-                    device = FCMDevice.objects.get(registration_id = user1.token)
-                    device.name = "Testing user"
-                    device.save()
-                    data = device.send_message(data)
-                except:
-                    h = 0
-            return Response({'error':error,'id':Report.id})
-        except:
-            error = True
-        return Response({'error':error})
-
-    def delete(self,request):
-        error = False
-        try:
-            data = request.query_params
-            report = models.Reports.objects.get(id = int(data['report_id']))
-            report.delete()
-        except:
-            error = True
-        return Response({'error':error})
 
 
 
