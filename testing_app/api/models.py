@@ -316,25 +316,6 @@ class Ratings(models.Model):
         return str(self.username)
 
 
-class Notifications(models.Model):
-    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='Notification_username')
-    title = models.CharField(max_length=100,default="")
-    description = models.TextField(default="")
-    branch = models.CharField(default="@",max_length=100)
-    batch = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE",max_length=100)
-    year = models.CharField(default="1111",max_length=100)
-    img = models.FileField(upload_to = 'notif',default = 'static/img.png')
-    img_ratio = models.FloatField(default = 1.00)
-    posted_date = models.DateTimeField(default=timezone.now)
-    domain = models.TextField(default="@nitc.ac.in")
-
-    class Meta:
-        ordering = ['-posted_date']
-
-    def __str__(self):
-        return str(self.title)
-
-
 
 
 class CalenderEvents(models.Model):
@@ -380,15 +361,6 @@ class Messanger(models.Model):
 
 
 
-class Reports(models.Model):
-    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='ReportUser',blank=True,null=True)
-    description = models.TextField(default="")
-    report_belongs = models.CharField(max_length=100,default="student")
-    posted_date = models.DateTimeField(default=timezone.now)
-    domain = models.TextField(default="@nitc.ac.in")
-
-    def __str__(self):
-        return str(self.username)
 
 
 

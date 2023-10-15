@@ -5,6 +5,28 @@ from django.conf import settings
 
 
 
+
+
+class SAC_MEMS(models.Model):
+    head = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='SAC_MEMS_head')
+    logo = models.ImageField(upload_to = 'club_sports',default = 'static/img.png')
+    img_ratio = models.FloatField(default = 1.00)
+    role = models.CharField(max_length=100,default="")
+    description = models.TextField(default = '')
+    phone_num = models.CharField(max_length=15,default="")
+    email = models.CharField(max_length=50,default="")
+    domain = models.TextField(default="@nitc.ac.in")
+    date_of_join = models.DateTimeField(default=timezone.now)
+
+
+    class Meta:
+        ordering = ['-date_of_join']
+
+    def __str__(self):
+        return str(self.role)
+
+
+
 class AllClubs(models.Model):
     name = models.CharField(max_length=50,default="")
     logo = models.ImageField(upload_to = 'club_sports',default = 'static/img.png')
@@ -80,7 +102,6 @@ class AllFests(models.Model):
     team_members = models.TextField(default="")
     description = models.TextField(default = '')
     websites = models.CharField(max_length=100,default = '')
-    sport_ground = models.TextField(default="")
     is_like = models.BooleanField(default=False)
     like_count = models.IntegerField(default=0)
     date_of_join = models.DateTimeField(default=timezone.now)
@@ -106,6 +127,40 @@ class Fests_likes(models.Model):
     def __str__(self):
         return str(self.username)
 
+
+
+
+
+class Notifications(models.Model):
+    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='Notification_username')
+    title = models.CharField(max_length=100,default="")
+    description = models.TextField(default="")
+    branch = models.CharField(default="@",max_length=100)
+    batch = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE",max_length=100)
+    year = models.CharField(default="1111",max_length=100)
+    img = models.FileField(upload_to = 'notif',default = 'static/img.png')
+    img_ratio = models.FloatField(default = 1.00)
+    posted_date = models.DateTimeField(default=timezone.now)
+    domain = models.TextField(default="@nitc.ac.in")
+
+    class Meta:
+        ordering = ['-posted_date']
+
+    def __str__(self):
+        return str(self.title)
+
+
+
+
+class Reports(models.Model):
+    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='ReportUser',blank=True,null=True)
+    description = models.TextField(default="")
+    report_belongs = models.CharField(max_length=100,default="student")
+    posted_date = models.DateTimeField(default=timezone.now)
+    domain = models.TextField(default="@nitc.ac.in")
+
+    def __str__(self):
+        return str(self.username)
 
 
 

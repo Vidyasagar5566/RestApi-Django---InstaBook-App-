@@ -7,19 +7,21 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
 
+    path('test_api2', views.testing_api2.as_view(),name = 'testing_api2'),
+
 #CLUBS/SPORTS/FESTS
-    path('allclubs/list1', views.ALLCLUBS_list.as_view(),name = 'ALLCLUBS_list'),
-    path('club/like_list1', views.CLUB_like_list.as_view(),name = 'CLUB_like_list'),
-    path('allsports/list1', views.ALLSPORTS_list.as_view(),name = 'ALLSPORTS_list'),
-    path('sport/like_list1', views.SPORT_like_list.as_view(),name = 'SPORT_like_list'),
-    path('allfests/list1', views.ALLFESTS_list.as_view(),name = 'ALLFESTS_list'),
-    path('fest/like_list1', views.FEST_like_list.as_view(),name = 'FEST_like_list'),
+    path('allclubs', views.ALLCLUBS_list.as_view(),name = 'ALLCLUBS_list'),
+    path('club/likes', views.CLUB_like_list.as_view(),name = 'CLUB_like_list'),
+    path('allsports', views.ALLSPORTS_list.as_view(),name = 'ALLSPORTS_list'),
+    path('sport/likes', views.SPORT_like_list.as_view(),name = 'SPORT_like_list'),
+    path('allfests', views.ALLFESTS_list.as_view(),name = 'ALLFESTS_list'),
+    path('fest/likes', views.FEST_like_list.as_view(),name = 'FEST_like_list'),
 
-    path('club_sport_fest/memb1', views.CLUB_SPORT_FEST_MEMB.as_view(),name = 'CLUB_SPORT_FEST_MEMB'),
+    path('club_sport_fest/mems', views.CLUB_SPORT_FEST_MEMB.as_view(),name = 'CLUB_SPORT_FEST_MEMB'),
 
-#ACADEMIC_EVENT
+#ACADEMIC_SUBJECTS
     path('all_branches/list1', views.ALL_BRANCHES.as_view(),name = 'ALL_BRANCHES'),
-    path('cal_dates_subs/list1', views.ALL_SEM_SUBS.as_view(),name = 'CALENDER_DATE_SUBS'),   #include subjects
+    path('cal_dates_subs/list1', views.ALL_SEM_SUBS.as_view(),name = 'CALENDER_DATE_SUBS'),
     path('cal_sub_years/list1', views.ALL_SUB_YEARS.as_view(),name = 'CALENDER_SUB_YEARS'),
     path('calender_sub_files1', views.ALL_SUB_YEAR_FILES.as_view(),name = 'CALENDER_SUB_FILES'),
     path('timetable/list1', views.TIME_TABLE.as_view(),name = 'TIME_TABLE'),
@@ -27,8 +29,28 @@ urlpatterns = [
 
     path('security1', views.SECURITY.as_view(),name = 'SECURITY1'),
 
-    path('sac/list1', views.SAC_list.as_view(),name = 'SAC_list1'),
-    path('mess/list1', views.MESS_list.as_view(),name = 'ACADEMIC_list1'),
-    path('academic/list1', views.ACADEMIC_list.as_view(),name = 'ACADEMIC_list1'),
+#ACADEMICS
+    path('sac', views.SAC_list.as_view(),name = 'SAC_list1'),
+    path('mess', views.MESS_list.as_view(),name = 'ACADEMIC_list1'),
+    path('academic', views.ACADEMIC_list.as_view(),name = 'ACADEMIC_list1'),
 
+
+#Notifications
+    path('send_notifications1', views.SendNotifications.as_view(),name = 'send_notifications1'),
+    path('notifications1', views.Notifications.as_view(),name = 'Notifications1'),
+    path('edit_notif_settings1', views.EDIT_notif_settings.as_view(),name = 'EDIT_notif_settings1'),
     ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+

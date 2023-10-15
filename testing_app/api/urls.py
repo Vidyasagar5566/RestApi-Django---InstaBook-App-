@@ -21,13 +21,11 @@ urlpatterns = [
     path('alert/list1', views.ALERT_list.as_view(),name = 'ALERT_list1'),
     path('alert/comment_list1', views.ALERT_CMNT_list.as_view(),name = 'ALERT_comment_list1'),
     path('profile/list1', views.PEOFILE_list.as_view(),name = 'PEOFILE_list1'),
-    path('notifications1', views.Notifications.as_view(),name = 'Notifications1'),
-    path('edit_notif_settings1', views.EDIT_notif_settings.as_view(),name = 'EDIT_notif_settings1'),
+
 
     path('cal_events/list1', views.CALENDER_EVENTS_list.as_view(),name = 'CALENDER_EVENTS_list'),
 
-# MESSANGER  && NOTIFICATIONS
-    path('send_notifications1', views.SendNotifications.as_view(),name = 'send_notifications1'),
+# MESSANGER
     path('messanger1', views.Messanger.as_view(),name = 'Messanger1'),
     path('user_messanger1', views.USER_Messanger.as_view(),name = 'user_messanger1'),
 

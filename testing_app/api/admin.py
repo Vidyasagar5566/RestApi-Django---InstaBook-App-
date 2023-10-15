@@ -63,8 +63,7 @@ admin.site.register(models.Events)
 admin.site.register(models.Event_likes)
 admin.site.register(models.Alerts)
 admin.site.register(models.ALERT_Comments)
-admin.site.register(models.Notifications)
-#admin.site.register(models.Messanger)
+admin.site.register(models.Messanger)
 admin.site.register(models.CalenderEvents)
 
 
@@ -75,11 +74,10 @@ admin.site.register(models.BranchSubYears)
 admin.site.register(models.BranchSubFiles)
 admin.site.register(models.Ratings)
 
-admin.site.register(models.Reports)
 
 admin.site.register(models.Mess_table)
 admin.site.register(models.Academic_table)
-#admin.site.register(models.Time_table)
+admin.site.register(models.Time_table)
 
 
 

@@ -19,6 +19,16 @@ class SmallUserSerializer(ModelSerializer):
         fields = ['username','domain','email','user_mark','star_mark','profile_pic','phn_num','file_type','is_student_admin']
 
 
+class SAC_MEMSSerializer(ModelSerializer):
+    class Meta:
+        model = models.SAC_MEMS
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['head'] = SmallUserSerializer(instance.head).data
+        return response
+
 
 
 class AllClubsSerializer(ModelSerializer):
@@ -107,6 +117,25 @@ class RatingsSerializer(ModelSerializer):
         response = super().to_representation(instance)
         response['username'] = SmallUserSerializer(instance.username).data
         return response
+
+
+
+
+
+
+class NotificationsSerializer(ModelSerializer):
+    class Meta:
+        model = models.Notifications
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
+
+
+
+
 
 
 

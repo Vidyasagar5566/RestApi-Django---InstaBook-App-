@@ -86,50 +86,6 @@ domains = {
     }
 
 
-def bulk_notifications(fcm_tokens,title,description):
-    div = len(fcm_tokens)//100
-    for i in range(div+1):
-        message = messaging.MulticastMessage(
-                    notification=messaging.Notification(
-                    title=title,
-                    body=description,
-                    ),
-                    tokens=fcm_tokens[i*100:(i+1)*100],
-                    data={"key1": "value1", "key2": "value2"},
-                    )
-        response = messaging.send_multicast(message)
-
-
-class SendNotifications(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def post(self,request):
-        data = request.data
-        users = User.objects.all()
-        fcm_tokens = []
-        for i in users:
-            if i.notif_settings[data['notiff_sett']] == '1' and i.token != "dfv":
-                fcm_tokens.append(i.token)
-        bulk_notifications(fcm_tokens,data['title'],data['description'])
-        return Response({"error":False})
-
-    def put(self,request):
-        user = request.user
-        data = request.data
-        users = User.objects.all()
-        fcm_tokens = []
-        for i in users:
-            if data['notif_year'][user.year - 1] == "1" and (user.branch in data['notif_branchs']):
-                i.notif_seen = False
-                i.notif_count += 1
-                i.save()
-                if i.notif_settings[7] == '1' and i.token != "dfv":
-                    fcm_tokens.append(i.token)
-        bulk_notifications(fcm_tokens,user.email,"Gave Announcement : " + data['title'] + " : " + data['description'])
-        return Response({"error":False})
-
-
 
 
 class testing(APIView):
@@ -144,16 +100,6 @@ class testing(APIView):
         return Response({"error":error,"password":password})
 
 
-    def post(self,request):
-        error = False
-        data = request.data
-        user = User.objects.create_user(username=data["username"],password=data["password"])
-        Token.objects.create(user=user)
-        return Response({'error':error})
-
-    def delete(self,request):
-        error = False
-        return Response({'error':error})
 
 
 class Register_EMAIL_check(APIView):
@@ -1057,104 +1003,6 @@ class CALENDER_EVENTS_list(APIView):
         return Response({'error':error,'id':0})
 
 
-
-
-## EDIT NOTIFICATIONS AND NOTIFICATION SEEN
-
-class EDIT_notif_settings(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-    def post(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.data
-            notif = data['notif_settings']
-            index = data['index']
-            settings = user.notif_settings
-            user.notif_settings = settings[:int(index)] + notif + settings[int(index)+1:]
-            user.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-    def delete(self,request):
-        error = False
-        try:
-            user = request.user
-            user.notif_seen = True
-            user.notif_count = 0
-            user.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-## EDIT NOTIFICATION IDS FOR TIME TABLES(BRANCHES AND ELECTIVES)
-
-    def get(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.query_params
-            user.notif_ids = data['notif_ids']
-            user.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-
-class Notifications(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            user = request.user
-            user.notif_seen = True
-            user.notif_count = 0
-            user.save()
-            data1 = models.Notifications.objects.all()
-            data = []
-            for i in data1:
-                if i.username == user:
-                    data.append(i)
-                    continue
-                if user.branch in i.allow_branchs and i.allow_years[user.year -1] == '1':
-                    data.append(i)
-            serializer = serializers.NotificationsSerializer(data,many = True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            user = request.user
-            notif = models.Notifications()
-            notif.username = user
-            notif.domain = user.domain
-            notif.title = data['title']
-            notif.description = data['description']
-            notif.branch = data['notif_branchs']
-            notif.year = data['notif_year']
-            notif.save()
-
-        except:
-            error = True
-        return Response({'error':error})
-
-    def delete(self,request):
-        error = False
-        try:
-            data = request.query_params
-            notification = models.Notifications.objects.get(id = int(data['notification_id']))
-            notification.delete()
-        except:
-            error = True
-        return Response({'error':error})
 
 
 class Messanger(APIView):

@@ -54,8 +54,17 @@ class UserAdmin(DjangoUserAdmin):
 
 
 admin.site.register(models.AllClubs)
+admin.site.register(models.Clubs_likes)
 admin.site.register(models.AllSports)
+admin.site.register(models.Sports_likes)
 admin.site.register(models.AllFests)
+admin.site.register(models.Fests_likes)
+
+admin.site.register(models.SAC_MEMS)
+
+admin.site.register(models.Notifications)
+admin.site.register(models.Reports)
+
 
 
 

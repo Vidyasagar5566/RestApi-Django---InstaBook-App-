@@ -99,16 +99,6 @@ class Post_LikeSerializer(ModelSerializer):
         response['username'] = UserSerializer(instance.username).data
         return response
 
-class NotificationsSerializer(ModelSerializer):
-    class Meta:
-        model = models.Notifications
-        fields = "__all__"
-
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
-        return response
-
 class MessangerSerializer(ModelSerializer):
     class Meta:
         model = models.Messanger
