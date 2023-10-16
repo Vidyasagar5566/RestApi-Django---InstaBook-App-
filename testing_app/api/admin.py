@@ -23,6 +23,10 @@ class UserAdmin(DjangoUserAdmin):
 
                            'user_mark','star_mark',
 
+                           'clz_clubs_head','clz_sports_head','clz_fests_head','clz_sacs_head',
+
+                           'clz_clubs','clz_sports','clz_fests','clz_sacs',
+
                            'notif_settings','notif_seen','notif_count','notif_ids',
 
                            'token','platform','is_details',

@@ -29,8 +29,6 @@ class SAC_MEMSSerializer(ModelSerializer):
         response['head'] = SmallUserSerializer(instance.head).data
         return response
 
-
-
 class AllClubsSerializer(ModelSerializer):
     class Meta:
         model = models.AllClubs

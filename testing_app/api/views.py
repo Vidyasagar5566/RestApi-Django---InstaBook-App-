@@ -15,6 +15,7 @@ from firebase_admin.messaging import Message, Notification
 from fcm_django.models import FCMDevice
 from django.db.models import Q
 from django.utils.timezone import localtime
+from api2 import models as api2_models
 
 
 #        user = request.user
@@ -94,6 +95,10 @@ class testing(APIView):
         password = ""
         try:
             user = User.objects.get(email = 'testing5566@gmail.com')
+            posts = models.PostTable.objects.all()
+            serializer = serializers.PostTableSerializer(posts,many = True)
+            return Response(serializer.data)
+
 
         except:
             error = True
@@ -136,16 +141,16 @@ class Register_EMAIL_check(APIView):
         return Response({"error":error,"password":password})
 
 
-
     def post(self,request):
         error = False
         try:
             data = request.data
-            if data['key'] == "@Vidyasag5566":
-                user = User.objects.create_user(username=data["username"],password=data["password"])
-                Token.objects.create(user=user)
-            else:
-                error = True
+            user = User.objects.get(email = data['email'])
+            user.branch = data['branch']
+            user.course = data['course']
+            user.year = data['year']
+            user.is_details = True
+            user.save()
         except:
             error = True
         return Response({'error':error})
@@ -328,26 +333,6 @@ class LST_Comment_list(APIView):
             LST_list.comment_count += 1
             LST_list.save()
 
-            a = '''    data1 = Message(
-            notification=Notification(title= user.email, body= " commented on your : " + LST_list.title + " : " + data['comment']),
-            #topic="Optional topic parameter: Whatever you want",
-            )
-            try:
-                user1 = LST_list.username
-                device = FCMDevice()
-                device.registration_id  = user1.token
-                device.name = user1.username
-                device.save()
-                data = device.send_message(data1)
-            except:
-                try:
-                    user1 = LST_list.username
-                    device = FCMDevice.objects.get(registration_id = user1.token)
-                    device.name = user1.username
-                    device.save()
-                    data = device.send_message(data1)
-                except:
-                    h = 0   '''
             return Response({'error':error,'id':new_comment.id,"not":"not sent"})
         except:
             error = True
@@ -417,9 +402,25 @@ class POST_list(APIView):
             post.username = user
             post.domain = user.domain
             post.description = data['description']
-            post.img = ContentFile(base64.b64decode(data['file']),data['file_name'])
+            if data['image_ratio'] != "0":
+                post.img = ContentFile(base64.b64decode(data['file']),data['file_name'])
             post.img_ratio = float(int(data['image_ratio']))
             post.all_universities = data['is_all_university']
+
+            if data['post_category'] == 'club':
+                club = api2_models.AllClubs.objects.get(id = int(data['category_id']))
+                post.club_post = club
+            elif data['post_category'] == 'sport':
+                sport = api2_models.AllSports.objects.get(id = int(data['category_id']))
+                post.sport_post = sport
+            elif data['post_category'] == 'fest':
+                fest = api2_models.AllFests.objects.get(id = int(data['category_id']))
+                post.fest_post = fest
+            elif data['post_category'] == 'sac':
+                sac = api2_models.SAC_MEMS.objects.get(id = int(data['category_id']))
+                post.sac_post = sac
+            post.post_category = data['post_category']
+
             post.save()
         except:
             error = True
@@ -614,6 +615,23 @@ class EVENT_list(APIView):
             event.img_ratio = float(int(data['image_ratio']))
             event.event_date = data['event_date']
             event.all_universities = data['is_all_university']
+
+
+            if data['event_category'] == 'club':
+                club = api2_models.AllClubs.objects.get(id = int(data['category_id']))
+                event.club_event = club
+            elif data['event_category'] == 'sport':
+                sport = api2_models.AllSports.objects.get(id = int(data['category_id']))
+                event.sport_event = sport
+            elif data['event_category'] == 'fest':
+                fest = api2_models.AllFests.objects.get(id = int(data['category_id']))
+                event.fest_event = fest
+            elif data['event_category'] == 'sac':
+                sac = api2_models.SAC_MEMS.objects.get(id = int(data['category_id']))
+                event.sac_event = sac
+            event.event_category = data['event_category']
+
+
             event.save()
 
         except:
@@ -743,6 +761,24 @@ class ALERT_list(APIView):
             alert.allow_branchs = data['allow_branchs']
             alert.allow_years = data['allow_years']
             alert.all_universities = data['is_all_university']
+
+
+            if data['alert_category'] == 'club':
+                club = api2_models.AllClubs.objects.get(id = int(data['category_id']))
+                alert.club_event = club
+            elif data['alert_category'] == 'sport':
+                sport = api2_models.AllSports.objects.get(id = int(data['category_id']))
+                alert.sport_event = sport
+            elif data['alert_category'] == 'fest':
+                fest = api2_models.AllFests.objects.get(id = int(data['category_id']))
+                alert.fest_event = fest
+            elif data['alert_category'] == 'sac':
+                sac = api2_models.SAC_MEMS.objects.get(id = int(data['category_id']))
+                alert.sac_event = sac
+            alert.alert_category = data['alert_category']
+
+
+
             alert.save()
 
         except:

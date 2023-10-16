@@ -3,6 +3,7 @@ from . import models
 from django.contrib.auth import get_user_model
 #from .models import customUser
 User = get_user_model()
+from api2 import models as api2_models
 
 
 class UserSerializer(ModelSerializer):
@@ -44,6 +45,14 @@ class PostTableSerializer(ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['username'] = SmallUserSerializer(instance.username).data
+        if response['post_category'] == "club":
+            response['club_post'] = AllClubs1Serializer(instance.club_post).data
+        elif response['post_category'] == "sport":
+            response['sport_post'] = AllSports1Serializer(instance.sport_post).data
+        elif response['post_category'] == "fest":
+            response['fest_post'] = AllFests1Serializer(instance.fest_post).data
+        elif response['post_category'] == "sac":
+            response['sac_post'] = SAC_MEMS1Serializer(instance.sac_post).data
         return response
 
 class post_CommentsSerializer(ModelSerializer):
@@ -64,6 +73,16 @@ class EventsSerializer(ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['username'] = UserSerializer(instance.username).data
+        if response['event_category'] == "club":
+            response['club_event'] = AllClubs1Serializer(instance.club_event).data
+        elif response['event_category'] == "sport":
+            response['sport_event'] = AllSports1Serializer(instance.sport_event).data
+        elif response['event_category'] == "fest":
+            response['fest_event'] = AllFests1Serializer(instance.fest_event).data
+        elif response['event_category'] == "sac":
+            response['sac_event'] = SAC_MEMS1Serializer(instance.sac_event).data
+
+
         return response
 
 class AlertsSerializer(ModelSerializer):
@@ -74,6 +93,16 @@ class AlertsSerializer(ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['username'] = SmallUserSerializer(instance.username).data
+        if response['thread_category'] == "club":
+            response['club_thread'] = AllClubs1Serializer(instance.club_thread).data
+        elif response['thread_category'] == "sport":
+            response['sport_thread'] = AllSports1Serializer(instance.sport_thread).data
+        elif response['thread_category'] == "fest":
+            response['fest_thread'] = AllFests1Serializer(instance.fest_thread).data
+        elif response['thread_category'] == "sac":
+            response['sac_thread'] = SAC_MEMS1Serializer(instance.sac_thread).data
+
+
         return response
 
 class Alert_CommentsSerializer(ModelSerializer):
@@ -123,7 +152,51 @@ class CALENDER_EVENTSerializer(ModelSerializer):
 
 
 
+### SERIALIZERS FOR POST OF CLUB/FEST/SPORT/SAC
 
+
+class SAC_MEMS1Serializer(ModelSerializer):
+    class Meta:
+        model = api2_models.SAC_MEMS
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['head'] = None
+        return response
+
+class AllClubs1Serializer(ModelSerializer):
+    class Meta:
+        model = api2_models.AllClubs
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['head'] = None
+        return response
+
+
+class AllSports1Serializer(ModelSerializer):
+    class Meta:
+        model = api2_models.AllSports
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['head'] = None
+        return response
+
+
+
+class AllFests1Serializer(ModelSerializer):
+    class Meta:
+        model = api2_models.AllFests
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['head'] = None
+        return response
 
 
 

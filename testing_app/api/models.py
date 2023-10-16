@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.conf import settings
 import uuid
+from api2 import models as api2_models
 #workon testing
 
 
@@ -37,11 +38,22 @@ class User(AbstractUser):
     admin_role = models.CharField(default="@",max_length=100)
     student_admin_role = models.CharField(default="@",max_length=100)
 
+    clz_clubs_head = models.BooleanField(default=False)
+    clz_sports_head = models.BooleanField(default=False)
+    clz_fests_head = models.BooleanField(default=False)
+    clz_sacs_head = models.BooleanField(default=False)
+
+    clz_clubs = models.JSONField(default = {'head':{},'team_member':{}})
+    clz_sports = models.JSONField(default = {'head':{},'team_member':{}})
+    clz_fests = models.JSONField(default = {'head':{},'team_member':{}})
+    clz_sacs = models.JSONField(default = {'head':{},'team_member':{}})
+
+
     user_mark = models.CharField(default="St",max_length=100)
     star_mark = models.IntegerField(default=0)
 
-    high_post_count = models.IntegerField(default=0)
-    high_lst_count = models.IntegerField(default=0)
+    post_count = models.IntegerField(default=0)
+    lst_count = models.IntegerField(default=0)
     notif_seen = models.BooleanField(default=True)
     notif_count = models.IntegerField(default=0)
     notif_ids = models.TextField(default="@")
@@ -79,6 +91,15 @@ class PostTable(models.Model):
     Admin = models.BooleanField(default = False)
     all_universities = models.BooleanField(default = True)
     domain = models.TextField(default="@nitc.ac.in")
+
+
+    post_category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
+    club_post = models.ForeignKey(api2_models.AllClubs,on_delete=models.CASCADE, related_name='post_from_club',blank=True,null=True)
+    sport_post = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='post_from_club',blank=True,null=True)
+    fest_post = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='post_from_club',blank=True,null=True)
+    sac_post = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='post_from_club',blank=True,null=True)
+
+
 
     class Meta:
         ordering = ['-posted_date']
@@ -168,6 +189,16 @@ class Events(models.Model):
     all_universities = models.BooleanField(default = True)
     domain = models.TextField(default="@nitc.ac.in")
 
+    event_category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
+    club_event = models.ForeignKey(api2_models.AllClubs,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
+    sport_event = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
+    fest_event = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
+    sac_event = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
+
+
+
+
+
     class Meta:
         ordering = ['-posted_date']
 
@@ -199,6 +230,17 @@ class Alerts(models.Model):
     posted_date = models.DateTimeField(default=timezone.now)
     all_universities = models.BooleanField(default = True)
     domain = models.TextField(default="@nitc.ac.in")
+
+
+    thread_category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
+    club_thread = models.ForeignKey(api2_models.AllClubs,on_delete=models.CASCADE, related_name='thread_from_club',blank=True,null=True)
+    sport_thread = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='thread_from_club',blank=True,null=True)
+    fest_thread = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='thread_from_club',blank=True,null=True)
+    sac_thread = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='thread_from_club',blank=True,null=True)
+
+
+
+
 
     class Meta:
         ordering = ['-posted_date']

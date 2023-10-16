@@ -114,7 +114,7 @@ def bulk_notifications(fcm_tokens,title,description):
                     tokens=fcm_tokens[i*100:(i+1)*100],
                     data={"key1": "value1", "key2": "value2"},
                     )
-        response = messaging.send_multicast(message)
+        #response = messaging.send_multicast(message)
 
 
 class SendNotifications(APIView):
@@ -185,15 +185,13 @@ class ALLCLUBS_list(APIView):
             data = request.data
 
             new_club = models.AllClubs()
-            new_club.name = data['name']
-            new_club.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
-            new_club.title = data['title']
+            new_club.name = data['club_name']
             new_club.domain = user.domain
-            new_club.head = User.objects.get(email = data['email'])
-            new_club.team_members = data['team_members']
-            new_club.description = data['description']
-            new_club.websites = data['websites']
+            club_head = User.objects.get(email = data['email'])
+            new_club.head = club_head
             new_club.save()
+            club_head.clz_clubs['head'][new_club.id] = data['club_name']
+            club_head.save()
 
         except:
             error = True
@@ -234,6 +232,11 @@ class ALLCLUBS_list(APIView):
             new_head = User.objects.get(email = data['new_head_email'])
             new_club.head = new_head
             new_club.save()
+            del[user.clz_clubs['head'][data['id']]]
+            user.save()
+            new_head.clz_clubs['head'][data['id']] = new_club.name
+            new_head.save()
+
 
         except:
             error = True
@@ -317,18 +320,13 @@ class ALLSPORTS_list(APIView):
             data = request.data
 
             new_sport = models.AllSports()
-            new_sport.name = data['name']
-            new_sport.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
-            new_sport.title = data['title']
+            new_sport.name = data['sport_name']
             new_sport.domain = user.domain
-            new_sport.head = User.objects.get(email = data['email'])
-            new_sport.team_members = data['team_members']
-            new_sport.description = data['description']
-            new_sport.websites = data['websites']
-            new_sport.sport_ground = data['sport_ground']
-            new_sport.sport_ground_img = ContentFile(base64.b64decode(data['file1']),data['file_name1'])
-            new_sport.img_ratio = data['img_ratio']
+            sport_head = User.objects.get(email = data['email'])
+            new_sport.head = sport_head
             new_sport.save()
+            sport_head.clz_sports['head'][new_sport.id] = data['sport_name']
+            sport_head.save()
 
         except:
             error = True
@@ -372,6 +370,10 @@ class ALLSPORTS_list(APIView):
             new_head = User.objects.get(email = data['new_head_email'])
             new_sport.head = new_head
             new_sport.save()
+            del[user.clz_sports['head'][data['id']]]
+            user.save()
+            new_head.clz_sports['head'][data['id']] = new_sport.name
+            new_head.save()
 
         except:
             error = True
@@ -454,15 +456,13 @@ class ALLFESTS_list(APIView):
             data = request.data
 
             new_fest = models.AllFests()
-            new_fest.name = data['name']
-            new_fest.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
-            new_fest.title = data['title']
+            new_fest.name = data['fest_name']
             new_fest.domain = user.domain
-            new_fest.head = User.objects.get(email = data['email'])
-            new_fest.team_members = data['team_members']
-            new_fest.description = data['description']
-            new_fest.websites = data['websites']
+            fest_head = User.objects.get(email = data['email'])
+            new_fest.head = fest_head
             new_fest.save()
+            fest_head.clz_fests['head'][new_fest.id] = data['fest_name']
+            fest_head.save()
 
         except:
             error = True
@@ -504,6 +504,10 @@ class ALLFESTS_list(APIView):
             new_head = User.objects.get(email = data['new_head_email'])
             new_fest.head = new_head
             new_fest.save()
+            del[user.clz_fests['head'][data['id']]]
+            user.save()
+            new_head.clz_fests['head'][data['id']] = new_fest.name
+            new_head.save()
 
         except:
             error = True
@@ -545,6 +549,85 @@ class FEST_like_list(APIView):
 
             fest.like_count -= 1
             fest.save()
+        except:
+            error = True
+        return Response({'error':error})
+
+
+
+
+class SAC_list(APIView):
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication,]
+
+    def get(self,request):
+        error = False
+        try:
+            data = request.query_params
+            sac = models.SAC_MEMS.objects.filter(domain = data['domain'])
+            serializer = serializers.SAC_MEMSSerializer(sac,many = True)
+            return Response(serializer.data)
+        except:
+            error = True
+        return Response({'error':error})
+
+
+    def post(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.data
+
+            sac = models.SAC_MEMS()
+            sac.role = data['role']
+            sac.domain = user.domain
+            sac_head = User.objects.get(email = data['email'])
+            sac.head = sac_head
+            sac.save()
+            sac_head.clz_sacs['head'][sac.id] = data['role']
+            sac_head.save()
+
+        except:
+            error = True
+        return Response({'error':error})
+
+
+    def put(self,request):
+        error = False
+        try:
+            data = request.data
+            user = request.user
+
+            sac = models.SAC_MEMS.objects.get(id = data['id'])
+            if data['image_type'] == 'file':
+                sac.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
+            sac.role =  data['role']
+            sac.email = data['email']
+            sac.phone_num = data['phone_num']
+            sac.description = data['description']
+            sac.save()
+
+        except:
+            error = True
+        return Response({'error':error})
+
+
+
+    def patch(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.data
+
+            sac = models.SAC_MEMS.objects.get(id = data['id'])
+            new_head = User.objects.get(email = data['new_head_email'])
+            sac.head = new_head
+            sac.save()
+            del[user.clz_sacs['head'][data['id']]]
+            user.save()
+            new_head.clz_sacs['head'][data['id']] = sac.role
+            new_head.save()
+
         except:
             error = True
         return Response({'error':error})
@@ -844,62 +927,6 @@ class RATINGS(APIView):
             error = True
         return Response({'error':error})
 
-
-
-
-
-
-class SAC_list(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            data = request.query_params
-            sac = models.SAC_MEMS.objects.filter(domain = data['domain'])
-            serializer = serializers.SAC_MEMSSerializer(sac,many = True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
-
-
-    def put(self,request):
-        error = False
-        try:
-            data = request.data
-            user = request.user
-
-            sac = models.SAC_MEMS.objects.get(id = data['id'])
-            if data['image_type'] == 'file':
-                sac.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
-            sac.role =  data['role']
-            sac.email = data['email']
-            sac.phone_num = data['phone_num']
-            sac.description = data['description']
-            sac.save()
-
-        except:
-            error = True
-        return Response({'error':error})
-
-
-
-    def patch(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.data
-
-            sac = models.SAC_MEMS.objects.get(id = data['id'])
-            new_head = User.objects.get(email = data['new_head_email'])
-            sac.head = new_head
-            sac.save()
-
-        except:
-            error = True
-        return Response({'error':error})
 
 
 
