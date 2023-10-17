@@ -16,6 +16,7 @@ class SAC_MEMS(models.Model):
     phone_num = models.CharField(max_length=15,default="")
     email = models.CharField(max_length=50,default="")
     domain = models.TextField(default="@nitc.ac.in")
+    star_mark = models.IntegerField(default=0)
     date_of_join = models.DateTimeField(default=timezone.now)
 
 
@@ -39,6 +40,7 @@ class AllClubs(models.Model):
     is_like = models.BooleanField(default=False)
     like_count = models.IntegerField(default=0)
     domain = models.TextField(default="@nitc.ac.in")
+    star_mark = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['-like_count','-date_of_join']
@@ -74,6 +76,7 @@ class AllSports(models.Model):
     is_like = models.BooleanField(default=False)
     like_count = models.IntegerField(default=0)
     domain = models.TextField(default="@nitc.ac.in")
+    star_mark = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['-like_count','-date_of_join']
@@ -106,6 +109,7 @@ class AllFests(models.Model):
     like_count = models.IntegerField(default=0)
     date_of_join = models.DateTimeField(default=timezone.now)
     domain = models.TextField(default="@nitc.ac.in")
+    star_mark = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['-like_count','-date_of_join']

@@ -139,6 +139,17 @@ class MessangerSerializer(ModelSerializer):
         response['message_receiver'] = SmallUserSerializer(instance.message_receiver).data
         return response
 
+class MessagesSerializer(ModelSerializer):
+    class Meta:
+        model = models.Messanger
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['message_sender'] = SmallUserSerializer(instance.message_sender).data['email']
+        response['message_receiver'] = SmallUserSerializer(instance.message_receiver).data['email']
+        return response
+
 class CALENDER_EVENTSerializer(ModelSerializer):
     class Meta:
         model = models.CalenderEvents

@@ -155,6 +155,18 @@ class Register_EMAIL_check(APIView):
             error = True
         return Response({'error':error})
 
+    def put(self,request):
+        error = False
+        try:
+            data = request.data
+            user = User.objects.get(email = data['email'])
+            user.user_mark = data['user_mark']
+            user.star_mark = data['star_mark']
+            user.save()
+        except:
+            error = True
+        return Response({'error':error})
+
 class GET_user(APIView):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [TokenAuthentication,]
@@ -188,28 +200,6 @@ class GET_user(APIView):
             h = 2
         user.save()
 
-        data = Message(
-        notification=Notification(title= user.username + " LOGIN", body= user.username + " was successfully login in to NITC instabook app thak you.",image="https://testing5566.s3.amazonaws.com/pics/scaled_IMG-20230403-WA0019_nBt9IOM.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIA33TUEPX6FOZRQ2MY%2F20230523%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Date=20230523T083943Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d41894585e88878f4537f8a450c92a2f869e9b93cdbcf0396dc547574316dc63"),
-        #topic="Optional topic parameter: Whatever you want",
-        )
-        #notifications().notifications(data,1)
-
-        try:
-            user1 = User.objects.get(username = "Testing user")
-            device = FCMDevice()
-            device.registration_id  = user1.token
-            device.name = "Testing user"
-            #device.save()
-            #data = device.send_message(data)
-        except:
-            try:
-                user1 = User.objects.get(username = "Testing user")
-                device = FCMDevice.objects.get(registration_id = user1.token)
-                device.name = "Testing user"
-                #device.save()
-                #data = device.send_message(data)
-            except:
-                h = 0
 
         serializer = serializers.UserSerializer(user)
         return Response(serializer.data)
@@ -484,28 +474,6 @@ class PST_CMNT_list(APIView):
             post_cmnt.save()
             post_id.comment_count += 1
             post_id.save()
-
-            a = '''  data1 = Message(
-            notification=Notification(title= user.email , body=  " commented on " + post_id.username.username  + " Post" + " : " + data['comment']),
-            #topic="Optional topic parameter: Whatever you want",
-            )
-
-            try:
-                user1 = post_id.username
-                device = FCMDevice()
-                device.registration_id  = user1.token
-                device.name = user1.username
-                device.save()
-                data = device.send_message(data1)
-            except:
-                try:
-                    user1 = post_id.username
-                    device = FCMDevice.objects.get(registration_id = user1.token)
-                    device.name = user1.username
-                    device.save()
-                    data = device.send_message(data1)
-                except:
-                    h = 0   '''
 
             return Response({'error':error,'id':post_cmnt.id})
         except:
@@ -1063,30 +1031,10 @@ class Messanger(APIView):
                         continue
                     else:
                         required[i.message_sender] = i
-            last_user_messages = required.keys()
-            final_Response = []
-            for j in last_user_messages:
-                user_messages = models.Messanger.objects.filter((Q(message_sender=user) & Q(message_receiver=j)) | (Q(message_sender=j) & Q(message_receiver=user)))
-                serializer = serializers.MessangerSerializer(user_messages,many = True)
-                response = serializer.data
-                response.reverse()
-                final_Response.append(response)
-            lens = data['exist_messages_list'].split(',')
-            try:
-                if data['exist_messages_list'] == "load":
-                    return Response(final_Response)
-
-                if len(final_Response) == len(lens):
-                    for i in range(len(lens)):
-                        if int(lens[i]) == len(final_Response[i]):
-                            continue
-                        else:
-                            break
-                    else:
-                        return Response([])
-            except:
-                b = 0
-            return Response(final_Response)
+            latest_messages = required.values()
+            serializer = serializers.MessangerSerializer(latest_messages,many = True)
+            response = serializer.data
+            return Response(response)
         except:
             error = True
         return Response({'error':error})
@@ -1177,27 +1125,21 @@ class USER_Messanger(APIView):
         try:
             user = request.user
             data = request.query_params
+            start = int(data['num_list'])
             chatting_user = User.objects.get(email = data['chattinguser_email'])
             seen_messages = models.Messanger.objects.filter((Q(message_sender=chatting_user) & Q(message_receiver=user)))
             for i in seen_messages:
-                i.message_seen = True
-                i.save()
+                if i.message_seen == True:
+                    break
+                else:
+                   i.message_seen = True
+                   i.save()
+
             user_messages = models.Messanger.objects.filter((Q(message_sender=user) & Q(message_receiver=chatting_user)) | (Q(message_sender=chatting_user) & Q(message_receiver=user)))
-            serializer = serializers.MessangerSerializer(user_messages,many = True)
+            user_messages = user_messages[start : 10 + start]
+            serializer = serializers.MessagesSerializer(user_messages,many = True)
             response = serializer.data
             response.reverse()
-            try:
-                if data['ind_message_lenth'] == "load":
-                    return Response(response)
-                if int(data['ind_message_lenth']) == len(user_messages):
-                    if (response[-1]['message_seen'] == True) and (data['last_msg_seen'] == 'false'):
-                        return Response(response)
-                    else:
-                        return Response([])
-                else:
-                    return Response([])
-            except:
-                b = 0
             return Response(response)
         except:
             error = True

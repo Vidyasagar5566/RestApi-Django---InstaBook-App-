@@ -42,6 +42,7 @@ class User(AbstractUser):
     clz_sports_head = models.BooleanField(default=False)
     clz_fests_head = models.BooleanField(default=False)
     clz_sacs_head = models.BooleanField(default=False)
+    clz_users_head = models.BooleanField(default=False)
 
     clz_clubs = models.JSONField(default = {'head':{},'team_member':{}})
     clz_sports = models.JSONField(default = {'head':{},'team_member':{}})

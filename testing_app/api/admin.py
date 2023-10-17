@@ -23,7 +23,7 @@ class UserAdmin(DjangoUserAdmin):
 
                            'user_mark','star_mark',
 
-                           'clz_clubs_head','clz_sports_head','clz_fests_head','clz_sacs_head',
+                           'clz_clubs_head','clz_sports_head','clz_fests_head','clz_sacs_head','clz_users_head',
 
                            'clz_clubs','clz_sports','clz_fests','clz_sacs',
 
