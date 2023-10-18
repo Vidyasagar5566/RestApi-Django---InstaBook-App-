@@ -29,7 +29,7 @@ class UserAdmin(DjangoUserAdmin):
 
                            'notif_settings','notif_seen','notif_count','notif_ids',
 
-                           'token','platform','is_details',
+                           'token','platform','is_details','update_mark',
                             )}),
         ('Permissions', {'fields': (
             'is_active',

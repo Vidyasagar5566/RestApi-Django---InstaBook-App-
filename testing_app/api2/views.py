@@ -88,6 +88,54 @@ domains = {
 
 
 
+
+
+
+
+def team_members_transfer(old_team_mem,new_team_mem,id,category,name):
+    old_team_mem_set = set(old_team_mem.split('#'))
+    new_team_mem_set = set(new_team_mem.split('#'))
+    common_people = old_team_mem_set.intersection(new_team_mem_set)
+    old_team_mem = old_team_mem_set - common_people
+    new_team_mem = new_team_mem_set - common_people
+
+    #removing club from this old people
+    for i in old_team_mem:
+        try:
+            user = User.objects.get(email = i)
+            if category == 'club':
+                del[user.clz_clubs['team_member'][id]]
+            elif category == 'sport':
+                del[user.clz_sports['team_member'][id]]
+            elif category == 'fest':
+                del[user.clz_fests['team_member'][id]]
+            elif category == 'sac':
+                del[user.clz_sacs['team_member'][id]]
+            user.save()
+        except:
+            continue
+
+    #adding club to this new people
+    for i in new_team_mem:
+        try:
+            user = User.objects.get(email = i)
+            if category == 'club':
+                user.clz_clubs['team_member'][id] = name
+            elif category == 'sport':
+                user.clz_sports['team_member'][id] = name
+            elif category == 'fest':
+                user.clz_fests['team_member'][id] = name
+            elif category == 'sac':
+                user.clz_sacs['team_member'][id] = name
+            user.save()
+        except:
+            continue
+
+
+
+
+
+
 class testing_api2(APIView):
     def get(self,request):
         error = False
@@ -205,6 +253,7 @@ class ALLCLUBS_list(APIView):
             data = request.data
 
             new_club = models.AllClubs.objects.get(id = data['id'])
+            old_team_mem = new_club.team_members
             new_club.name = data['name']
             if data['image_type'] == 'file':
                 new_club.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
@@ -215,6 +264,8 @@ class ALLCLUBS_list(APIView):
             new_club.description = data['description']
             new_club.websites = data['websites']
             new_club.save()
+            if old_team_mem != data['team_members']:
+                team_members_transfer(old_team_mem,data['team_members'],data['id'],'club',data['name'])
 
         except:
             error = True
@@ -341,6 +392,7 @@ class ALLSPORTS_list(APIView):
             data = request.data
 
             new_sport = models.AllSports.objects.get(id = data['id'])
+            old_team_mem = new_sport.team_members
             new_sport.name = data['name']
             if data['image_type'] == 'file':
                 new_sport.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
@@ -354,6 +406,8 @@ class ALLSPORTS_list(APIView):
             if data['image2_type'] == 'file':
                 new_sport.sport_ground_img = ContentFile(base64.b64decode(data['file1']),data['file_name1'])
             new_sport.save()
+            if old_team_mem != data['team_members']:
+                team_members_transfer(old_team_mem,data['team_members'],data['id'],'sport',data['name'])
 
         except:
             error = True
@@ -478,6 +532,7 @@ class ALLFESTS_list(APIView):
             data = request.data
 
             new_fest = models.AllFests.objects.get(id = data['id'])
+            old_team_mem = new_fest.team_members
             new_fest.name = data['name']
             if data['image_type'] == 'file':
                 new_fest.logo = ContentFile(base64.b64decode(data['file']),data['file_name'])
@@ -488,6 +543,8 @@ class ALLFESTS_list(APIView):
             new_fest.description = data['description']
             new_fest.websites = data['websites']
             new_fest.save()
+            if old_team_mem != data['team_members']:
+                team_members_transfer(old_team_mem,data['team_members'],data['id'],'fest',data['name'])
 
         except:
             error = True

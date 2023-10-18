@@ -108,6 +108,8 @@ class testing(APIView):
 
 
 class Register_EMAIL_check(APIView):
+
+    #USER LOGIN CHECK OF ACCOUNT AND CREATION
     def get(self,request):
         error = False
         data = request.query_params
@@ -118,7 +120,7 @@ class Register_EMAIL_check(APIView):
         except:
             email = data['email']
             check_email = email.split('@')
-            if 'nit' in check_email[1] or 'iit' in check_email[1] or 'iit' in check_email[1]:
+            if 'nit' in check_email[1] or 'iit' in check_email[1] or 'iiit' in check_email[1]:
                 lst = email.split('_')
                 if len(lst) == 1:
                     a = email.split('@')[0]
@@ -128,10 +130,9 @@ class Register_EMAIL_check(APIView):
                     a = lst[0]
                     username = a[0].upper() + a[1:]
                     roll_num = email.split('_')[1][:9]
-                profile_pic = "static/profile.jpg"
                 password = "@Vidyasag1234"        #email + "1234" #str(random.randint(10000,1000000))
                 try:
-                    user = User.objects.create_user(email = email,username=username,password=password,password1=password,roll_num = roll_num.upper(),profile_pic = profile_pic)
+                    user = User.objects.create_user(email = email,username=username,password=password,password1=password)
                 except:
                     x = random.randint(0,10000)
                     user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,roll_num = roll_num.upper(),profile_pic = profile_pic)
@@ -141,11 +142,13 @@ class Register_EMAIL_check(APIView):
         return Response({"error":error,"password":password})
 
 
+    #USER REGISTER FIRST TIME
     def post(self,request):
         error = False
         try:
             data = request.data
             user = User.objects.get(email = data['email'])
+            user.username = data['username']
             user.branch = data['branch']
             user.course = data['course']
             user.year = data['year']
@@ -155,6 +158,7 @@ class Register_EMAIL_check(APIView):
             error = True
         return Response({'error':error})
 
+    #USER MARK UPDATE
     def put(self,request):
         error = False
         try:
@@ -397,19 +401,19 @@ class POST_list(APIView):
             post.img_ratio = float(int(data['image_ratio']))
             post.all_universities = data['is_all_university']
 
-            if data['post_category'] == 'club':
+            if data['category'] == 'club':
                 club = api2_models.AllClubs.objects.get(id = int(data['category_id']))
-                post.club_post = club
-            elif data['post_category'] == 'sport':
+                post.club = club
+            elif data['category'] == 'sport':
                 sport = api2_models.AllSports.objects.get(id = int(data['category_id']))
-                post.sport_post = sport
-            elif data['post_category'] == 'fest':
+                post.sport = sport
+            elif data['category'] == 'fest':
                 fest = api2_models.AllFests.objects.get(id = int(data['category_id']))
-                post.fest_post = fest
-            elif data['post_category'] == 'sac':
+                post.fest = fest
+            elif data['category'] == 'sac':
                 sac = api2_models.SAC_MEMS.objects.get(id = int(data['category_id']))
-                post.sac_post = sac
-            post.post_category = data['post_category']
+                post.sac = sac
+            post.category = data['category']
 
             post.save()
         except:
@@ -585,19 +589,19 @@ class EVENT_list(APIView):
             event.all_universities = data['is_all_university']
 
 
-            if data['event_category'] == 'club':
+            if data['category'] == 'club':
                 club = api2_models.AllClubs.objects.get(id = int(data['category_id']))
-                event.club_event = club
-            elif data['event_category'] == 'sport':
+                event.club = club
+            elif data['category'] == 'sport':
                 sport = api2_models.AllSports.objects.get(id = int(data['category_id']))
-                event.sport_event = sport
-            elif data['event_category'] == 'fest':
+                event.sport = sport
+            elif data['category'] == 'fest':
                 fest = api2_models.AllFests.objects.get(id = int(data['category_id']))
-                event.fest_event = fest
-            elif data['event_category'] == 'sac':
+                event.fest = fest
+            elif data['category'] == 'sac':
                 sac = api2_models.SAC_MEMS.objects.get(id = int(data['category_id']))
-                event.sac_event = sac
-            event.event_category = data['event_category']
+                event.sac = sac
+            event.category = data['category']
 
 
             event.save()
@@ -731,19 +735,19 @@ class ALERT_list(APIView):
             alert.all_universities = data['is_all_university']
 
 
-            if data['alert_category'] == 'club':
+            if data['category'] == 'club':
                 club = api2_models.AllClubs.objects.get(id = int(data['category_id']))
-                alert.club_event = club
-            elif data['alert_category'] == 'sport':
+                alert.club = club
+            elif data['category'] == 'sport':
                 sport = api2_models.AllSports.objects.get(id = int(data['category_id']))
-                alert.sport_event = sport
-            elif data['alert_category'] == 'fest':
+                alert.sport = sport
+            elif data['category'] == 'fest':
                 fest = api2_models.AllFests.objects.get(id = int(data['category_id']))
-                alert.fest_event = fest
-            elif data['alert_category'] == 'sac':
+                alert.fest = fest
+            elif data['category'] == 'sac':
                 sac = api2_models.SAC_MEMS.objects.get(id = int(data['category_id']))
-                alert.sac_event = sac
-            alert.alert_category = data['alert_category']
+                alert.sac = sac
+            alert.category = data['category']
 
 
 
@@ -1136,7 +1140,7 @@ class USER_Messanger(APIView):
                    i.save()
 
             user_messages = models.Messanger.objects.filter((Q(message_sender=user) & Q(message_receiver=chatting_user)) | (Q(message_sender=chatting_user) & Q(message_receiver=user)))
-            user_messages = user_messages[start : 10 + start]
+            user_messages = user_messages[start : 20 + start]
             serializer = serializers.MessagesSerializer(user_messages,many = True)
             response = serializer.data
             response.reverse()
