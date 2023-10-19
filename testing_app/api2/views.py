@@ -1024,6 +1024,27 @@ class ACADEMIC_list(APIView):
             error = True
         return Response({'error':error})
 
+    def post(self,request):
+        error = False
+        try:
+            data = request.data
+            if data['id'] == 0:
+                academic = api_models.Academic_table()
+            else:
+                academic = api_models.Academic_table.objects.get(id = int(data['id']))
+            academic.academic_name = data['academic_name']
+            academic.sun = data['sun']
+            academic.mon = data['mon']
+            academic.tue = data['tues']
+            academic.wed = data['wed']
+            academic.thu = data['thu']
+            academic.fri = data['fri']
+            academic.sat = data['sat']
+            academic.save()
+        except:
+            error = True
+        return Response({'error':error})
+
 
 
 

@@ -166,6 +166,8 @@ class Register_EMAIL_check(APIView):
             user = User.objects.get(email = data['email'])
             user.user_mark = data['user_mark']
             user.star_mark = data['star_mark']
+            user.is_admin = data['is_admin']
+            user.is_student_admin = data['is_student_admin']
             user.save()
         except:
             error = True
@@ -692,6 +694,7 @@ class ALERT_list(APIView):
         error = False
         try:
             data = request.query_params
+            user = request.user
             start = int(data['num_list'])
             if data['domain'] == 'All':
                 data1 = models.Alerts.objects.filter(all_universities = True)
@@ -701,7 +704,6 @@ class ALERT_list(APIView):
                 else:
                     data1 = models.Alerts.objects.filter(domain = data['domain'],all_universities = True)
             data1 = data1[start : 10 + start]
-            user = request.user
             data = []
             for i in data1:
                 if i.username == user:
@@ -906,7 +908,6 @@ class CALENDER_EVENTS_list(APIView):
             activities = models.Events.objects.filter(domain = data['domain'])
             for i in activities:
                 a = i.event_date
-                #if str(a)[:10] not in dates:
                 dates[str(a) +'&&'+ i.title] = ""
             cal_events =  models.CalenderEvents.objects.filter(username = user,domain = data['domain']) | models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'])
             for i in cal_events:
@@ -946,6 +947,15 @@ class CALENDER_EVENTS_list(APIView):
                 a = str(i.event_date)[0:10]
                 if a == data['calender_date']:
                     date_activities.append(i)
+                    try:
+                        like = models.Event_likes.objects.filter(event_id = i,username = user)
+                        if len(like) >= 1:
+                            i.is_like = True
+                        elif len(like) > 1:
+                            for i in range(len(like)-1):
+                                i.delete()
+                    except:
+                        i.is_like = False
             event_serializer = serializers.EventsSerializer(date_activities,many = True)
             calender_date_serializer = serializers.CALENDER_EVENTSerializer(calender_date_events,many = True)
 
