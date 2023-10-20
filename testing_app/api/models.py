@@ -55,6 +55,9 @@ class User(AbstractUser):
 
     post_count = models.IntegerField(default=0)
     lst_count = models.IntegerField(default=0)
+    buy_count = models.IntegerField(default=0)
+    thread_count = models.IntegerField(default=0)
+
     notif_seen = models.BooleanField(default=True)
     notif_count = models.IntegerField(default=0)
     notif_ids = models.TextField(default="@")
@@ -97,9 +100,9 @@ class PostTable(models.Model):
 
     category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
     club = models.ForeignKey(api2_models.AllClubs,on_delete=models.CASCADE, related_name='post_from_club',blank=True,null=True)
-    sport = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='post_from_club',blank=True,null=True)
-    fest = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='post_from_club',blank=True,null=True)
-    sac = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='post_from_club',blank=True,null=True)
+    sport = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='post_from_sport',blank=True,null=True)
+    fest = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='post_from_fest',blank=True,null=True)
+    sac = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='post_from_sac',blank=True,null=True)
 
 
 
@@ -193,9 +196,9 @@ class Events(models.Model):
 
     category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
     club = models.ForeignKey(api2_models.AllClubs,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
-    sport = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
-    fest = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
-    sac = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
+    sport = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='event_from_sport',blank=True,null=True)
+    fest = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='event_from_fest',blank=True,null=True)
+    sac = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='event_from_sac',blank=True,null=True)
 
 
 
@@ -236,9 +239,9 @@ class Alerts(models.Model):
 
     category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
     club = models.ForeignKey(api2_models.AllClubs,on_delete=models.CASCADE, related_name='thread_from_club',blank=True,null=True)
-    sport = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='thread_from_club',blank=True,null=True)
-    fest = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='thread_from_club',blank=True,null=True)
-    sac = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='thread_from_club',blank=True,null=True)
+    sport = models.ForeignKey(api2_models.AllSports,on_delete=models.CASCADE, related_name='thread_from_sport',blank=True,null=True)
+    fest = models.ForeignKey(api2_models.AllFests,on_delete=models.CASCADE, related_name='thread_from_fest',blank=True,null=True)
+    sac = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='thread_from_sac',blank=True,null=True)
 
 
 

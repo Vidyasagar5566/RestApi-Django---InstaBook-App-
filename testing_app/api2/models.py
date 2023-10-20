@@ -19,6 +19,10 @@ class SAC_MEMS(models.Model):
     star_mark = models.IntegerField(default=0)
     date_of_join = models.DateTimeField(default=timezone.now)
 
+    post_count = models.IntegerField(default=0)
+    thread_count = models.IntegerField(default=0)
+    activity_count = models.IntegerField(default=0)
+
 
     class Meta:
         ordering = ['-date_of_join']
@@ -41,6 +45,10 @@ class AllClubs(models.Model):
     like_count = models.IntegerField(default=0)
     domain = models.TextField(default="@nitc.ac.in")
     star_mark = models.IntegerField(default=0)
+
+    post_count = models.IntegerField(default=0)
+    thread_count = models.IntegerField(default=0)
+    activity_count = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['-like_count','-date_of_join']
@@ -78,6 +86,10 @@ class AllSports(models.Model):
     domain = models.TextField(default="@nitc.ac.in")
     star_mark = models.IntegerField(default=0)
 
+    post_count = models.IntegerField(default=0)
+    thread_count = models.IntegerField(default=0)
+    activity_count = models.IntegerField(default=0)
+
     class Meta:
         ordering = ['-like_count','-date_of_join']
 
@@ -110,6 +122,10 @@ class AllFests(models.Model):
     date_of_join = models.DateTimeField(default=timezone.now)
     domain = models.TextField(default="@nitc.ac.in")
     star_mark = models.IntegerField(default=0)
+
+    post_count = models.IntegerField(default=0)
+    thread_count = models.IntegerField(default=0)
+    activity_count = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['-like_count','-date_of_join']

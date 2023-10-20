@@ -165,9 +165,9 @@ class CALENDER_EVENTSerializer(ModelSerializer):
 ### SERIALIZERS FOR POST OF CLUB/FEST/SPORT/SAC
 
 
-class SAC_MEMS1Serializer(ModelSerializer):
+class AllClubs1Serializer(ModelSerializer):
     class Meta:
-        model = api2_models.SAC_MEMS
+        model = api2_models.AllClubs
         fields = "__all__"
 
     def to_representation(self, instance):
@@ -175,9 +175,10 @@ class SAC_MEMS1Serializer(ModelSerializer):
         response['head'] = None
         return response
 
-class AllClubs1Serializer(ModelSerializer):
+
+class SAC_MEMS1Serializer(ModelSerializer):
     class Meta:
-        model = api2_models.AllClubs
+        model = api2_models.SAC_MEMS
         fields = "__all__"
 
     def to_representation(self, instance):
