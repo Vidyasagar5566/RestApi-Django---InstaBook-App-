@@ -18,7 +18,7 @@ class User(AbstractUser):
 
     roll_num = models.CharField(default="",max_length=100)
     phn_num = models.CharField(default="+91 000 000 0000",max_length = 17)
-    profile_pic = models.ImageField(upload_to = 'uploads',default = 'static/img.png')
+    profile_pic = models.ImageField(upload_to = 'pg',default = 'static/img.png')#uploads
     file_type = models.CharField(default="0",max_length=100)
     bio = models.CharField(max_length = 400,default="@")
     skills = models.JSONField(default = {'Programming_Languages': '','Projects':{},'Work_Experience':{},'Education_details':{}})
@@ -83,7 +83,7 @@ class PostTable(models.Model):
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='post_table_username')
     title = models.CharField(max_length=100,default="")
     description = models.TextField(default="")
-    img = models.FileField(upload_to = 'posts',default = 'static/img.png')
+    img = models.FileField(upload_to = 'pg',default = 'static/img.png')#posts
     img_ratio = models.FloatField(default = 1.00)
     post_file = models.IntegerField(default = 0) #vedio or audio
     tag = models.CharField(max_length = 20,default="post")   # lost_found,suggestion,problems,trending,memes/jokes,fets/club/sport,events
@@ -147,7 +147,7 @@ class Lost_Found(models.Model):
     title = models.CharField(max_length=50,default="")
     description = models.TextField(default="")
     tag = models.CharField(max_length=50,default="lost/found")
-    img = models.ImageField(upload_to = 'lost_found',default = 'static/img.png')
+    img = models.ImageField(upload_to = 'pg',default = 'static/img.png')#lost_found
     img_ratio = models.FloatField(default = 1.00)
     comment_count = models.IntegerField(default=0)
     lst_hiders = models.TextField(default="")
@@ -182,9 +182,9 @@ class Events(models.Model):
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='events_username')
     title = models.CharField(max_length=50,default="")
     description = models.TextField(default="")
-    event_img = models.FileField(upload_to = 'events',default = 'static/img.png')
+    event_img = models.FileField(upload_to = 'pg',default = 'static/img.png')#events
     img_ratio = models.FloatField(default = 1.00)
-    event_vedio = models.FileField(upload_to = 'pics',default = 'static/img.png')
+    event_vedio = models.FileField(upload_to = 'pg',default = 'static/img.png')#pics
     vedio_ratio = models.FloatField(default = 1.00)
     event_updates = models.TextField(default="updates")
     is_like = models.BooleanField(default=False)
@@ -227,7 +227,7 @@ class Alerts(models.Model):
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='alerts_username')
     title = models.CharField(max_length=50,default="")
     description = models.TextField(default="")
-    img = models.FileField(upload_to = 'alerts',default = 'static/img.png')
+    img = models.FileField(upload_to = 'pg',default = 'static/img.png')#alerts
     img_ratio = models.FloatField(default = 0.0)
     comment_count = models.IntegerField(default=0)
     allow_branchs = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE",max_length=100)
@@ -257,7 +257,7 @@ class ALERT_Comments(models.Model):
     alert_cmnt_id = models.ForeignKey(Alerts, on_delete=models.CASCADE, related_name='alert_comment')
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='alert_cmnt_username',default="")
     Comment = models.TextField(default="")
-    img = models.FileField(upload_to = 'alerts',default = 'static/img.png')
+    img = models.FileField(upload_to = 'pg',default = 'static/img.png')#alerts
     img_ratio = models.FloatField(default = 0.0)
     allow_branchs = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE",max_length=100)
     allow_years = models.CharField(default="1111",max_length=100)
@@ -332,7 +332,7 @@ class BranchSubFiles(models.Model):
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='CalenderSubFiles_user')
     year_id = models.ForeignKey(BranchSubYears, on_delete=models.CASCADE, related_name='CalenderSubYears')
     description = models.TextField(default="@")
-    qn_ans_file = models.FileField(upload_to = 'QnsAns',default = 'static/img.png')
+    qn_ans_file = models.FileField(upload_to = 'pg',default = 'static/img.png')#QnsAns
     file_type = models.CharField(default="@",max_length=100)
     file_name = models.CharField(default="@",max_length=100)
     year = models.CharField(default="@",max_length=100)
@@ -370,7 +370,7 @@ class CalenderEvents(models.Model):
     cal_event_type = models.CharField(max_length=100,default="self")
     title = models.CharField(max_length=100,default="")
     description = models.TextField(default="")
-    calender_date_file = models.FileField(upload_to = 'cal_events',default = 'static/img.png')
+    calender_date_file = models.FileField(upload_to = 'pg',default = 'static/img.png')#cal_events
     file_type = models.CharField(default="@",max_length=100)
     branch = models.CharField(default="@",max_length=100)
     year = models.CharField(default="@",max_length=100)
@@ -391,7 +391,7 @@ class Messanger(models.Model):
     message_sender = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='message_sender')
     message_receiver = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='message_receiver')
     message_body = models.TextField(default="")
-    message_file = models.FileField(upload_to = 'messanger',default = 'static/img.png')
+    message_file = models.FileField(upload_to = 'pg',default = 'static/img.png') #messanger
     messag_file_type = models.CharField(default="@",max_length=100)
     message_body_file = models.CharField(default="@",max_length=100)
     message_replyto = models.TextField(default="@")
@@ -445,7 +445,7 @@ class Academic_table(models.Model):
 
 class Time_table(models.Model):
     branch_name = models.CharField(max_length=50,default="")
-    branch_tb_img = models.ImageField(upload_to = 'time_table',default = 'static/img.png')  #
+    branch_tb_img = models.ImageField(upload_to = 'pg',default = 'static/img.png')  #time_table
     img_ratio = models.FloatField(default = 1.00)
     domain = models.TextField(default="@nitc.ac.in")
     sun = models.TextField(default = '')

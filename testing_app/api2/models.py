@@ -9,7 +9,7 @@ from django.conf import settings
 
 class SAC_MEMS(models.Model):
     head = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='SAC_MEMS_head')
-    logo = models.ImageField(upload_to = 'club_sports',default = 'static/img.png')
+    logo = models.ImageField(upload_to = 'pg',default = 'static/img.png') #club_sports
     img_ratio = models.FloatField(default = 1.00)
     role = models.CharField(max_length=100,default="")
     description = models.TextField(default = '')
@@ -34,7 +34,7 @@ class SAC_MEMS(models.Model):
 
 class AllClubs(models.Model):
     name = models.CharField(max_length=50,default="")
-    logo = models.ImageField(upload_to = 'club_sports',default = 'static/img.png')
+    logo = models.ImageField(upload_to = 'pg',default = 'static/img.png') #club_sports
     title = models.CharField(max_length=50,default="")
     head = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='AllClubs_head')
     team_members = models.TextField(default="")
@@ -71,14 +71,14 @@ class Clubs_likes(models.Model):
 
 class AllSports(models.Model):
     name = models.CharField(max_length=50,default="")
-    logo = models.ImageField(upload_to = 'club_sports',default = 'static/img.png')
+    logo = models.ImageField(upload_to = 'pg',default = 'static/img.png')#club_sports
     title = models.CharField(max_length=50,default="")
     head = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='AllSports_head')
     team_members = models.TextField(default="")
     description = models.TextField(default = '')
     websites = models.CharField(max_length=100,default = '')
     sport_ground = models.TextField(default="")
-    sport_ground_img = models.ImageField(upload_to = 'club_sports',default = 'static/img.png')
+    sport_ground_img = models.ImageField(upload_to = 'pg',default = 'static/img.png')#club_sports
     img_ratio = models.FloatField(default = 1.00)
     date_of_join = models.DateTimeField(default=timezone.now)
     is_like = models.BooleanField(default=False)
@@ -111,7 +111,7 @@ class Sports_likes(models.Model):
 
 class AllFests(models.Model):
     name = models.CharField(max_length=50,default="")
-    logo = models.ImageField(upload_to = 'club_sports',default = 'static/img.png')
+    logo = models.ImageField(upload_to = 'pg',default = 'static/img.png')#club_sports
     title = models.CharField(max_length=50,default="")
     head = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='AllFests_head')
     team_members = models.TextField(default="")
@@ -158,7 +158,7 @@ class Notifications(models.Model):
     branch = models.CharField(default="@",max_length=100)
     batch = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE",max_length=100)
     year = models.CharField(default="1111",max_length=100)
-    img = models.FileField(upload_to = 'notif',default = 'static/img.png')
+    img = models.FileField(upload_to = 'pg',default = 'static/img.png')#notif
     img_ratio = models.FloatField(default = 1.00)
     posted_date = models.DateTimeField(default=timezone.now)
     domain = models.TextField(default="@nitc.ac.in")
