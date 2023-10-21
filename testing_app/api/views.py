@@ -16,6 +16,7 @@ from fcm_django.models import FCMDevice
 from django.db.models import Q
 from django.utils.timezone import localtime
 from api2 import models as api2_models
+from api2 import serializers as api2_serializers
 
 
 #        user = request.user
@@ -884,10 +885,96 @@ class PEOFILE_list(APIView):
             if data['file_type'] == '2':
                 user.profile_pic = ContentFile(base64.b64decode(data['file']),data['file_name'])
                 user.file_type = '1'
+            user.course = data['course']
+            user.branch = data['branch']
+            user.year = data['year']
+            user.bio = data['bio']
+            user.batch = data['batch']
             user.save()
         except:
             error = True
         return Response({'error':error})
+
+
+    # PROFILE CATEGORY DATA BASED ON IDS
+    def delete(self,request):
+        error = False
+        try:
+            data = request.data
+            user = request.user
+
+            # GETTING HEADS OF CATEGORY EX:- CLUBS,SPORTS ETC..
+            heads_ids = data['head_ids'].split('#')
+            heads = []
+            for i in heads_ids:
+                if data['category'] == 'club':
+                    club = api2_models.AllClubs.objects.get(id = int(i))
+                    heads.append(club)
+                elif data['category'] == 'sport':
+                    sport = api2_models.AllSports.objects.get(id = int(i))
+                    heads.append(sport)
+                elif data['category'] == 'fest':
+                    fest = api2_models.AllFests.objects.get(id = int(i))
+                    heads.append(fest)
+                elif data['category'] == 'sac':
+                    sac = api2_models.SAC_MEMS.objects.get(id = int(i))
+                    heads.append(sac)
+            else:
+                if data['category'] == 'club':
+                    head_serializer = api2_serializers.AllClubsSerializer(heads,many=True)
+                elif data['category'] == 'sport':
+                    head_serializer = api2_serializers.AllSportsSerializer(heads,many=True)
+                elif data['category'] == 'fest':
+                    head_serializer = api2_serializers.AllFestsSerializer(heads,many=True)
+                elif data['category'] == 'sac':
+                    head_serializer = api2_serializers.SAC_MEMSSerializer(heads,many = True)
+
+            # GETTING MEMBERS OF CATEGORY EX:- CLUBS,SPORTS ETC..
+            mems_ids = data['member_ids'].split('#')
+            mems = []
+            for i in mems_ids:
+                if data['category'] == 'club':
+                    club = api2_models.AllClubs.objects.get(id = int(i))
+                    mems.append(club)
+                elif data['category'] == 'sport':
+                    sport = api2_models.AllSports.objects.get(id = int(i))
+                    mems.append(sport)
+                elif data['category'] == 'fest':
+                    fest = api2_models.AllFests.objects.get(id = int(i))
+                    mems.append(fest)
+                elif data['category'] == 'sac':
+                    sac = api2_models.SAC_MEMS.objects.get(id = int(i))
+                    mems.append(sac)
+            else:
+                if data['category'] == 'club':
+                    mems_serializer = api2_serializers.AllClubsSerializer(mems,many=True)
+                elif data['category'] == 'sport':
+                    mems_serializer = api2_serializers.AllSportsSerializer(mems,many=True)
+                elif data['category'] == 'fest':
+                    mems_serializer = api2_serializers.AllFestsSerializer(mems,many=True)
+                elif data['category'] == 'sac':
+                    mems_serializer = api2_serializers.SAC_MEMSSerializer(mems,many = True)
+
+            ## returning all the data
+            try:
+                return Response([head_serializer.data,mems_serializer.data])
+            except:
+                return Response([[],[]])
+
+
+
+
+
+
+
+
+
+
+        except:
+            error = True
+        return Response({'error':error})
+
+
 
 
     #Profile User Posts Data
