@@ -120,23 +120,15 @@ class Register_EMAIL_check(APIView):
             return Response({"error":False,"password":user.password1})
         except:
             email = data['email']
-            check_email = email.split('@')
+            username = email.split('@')[0]
             if 'nit' in check_email[1] or 'iit' in check_email[1] or 'iiit' in check_email[1]:
-                lst = email.split('_')
-                if len(lst) == 1:
-                    a = email.split('@')[0]
-                    username = a[0].upper() + a[1:]
-                    roll_num = "ADMIN"
-                else:
-                    a = lst[0]
-                    username = a[0].upper() + a[1:]
-                    roll_num = email.split('_')[1][:9]
-                password = "@Vidyasag1234"        #email + "1234" #str(random.randint(10000,1000000))
+
+                password = username + str(random.randint(100,1000000))
                 try:
                     user = User.objects.create_user(email = email,username=username,password=password,password1=password)
                 except:
                     x = random.randint(0,10000)
-                    user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,roll_num = roll_num.upper(),profile_pic = profile_pic)
+                    user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password)
                 return Response({"error":False,"password":password})
             else:
                 return Response({"error":True,"text":'email_desnt match'})
