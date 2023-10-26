@@ -38,7 +38,6 @@ urlpatterns = [
 #Notifications
     path('send_notifications1', views.SendNotifications.as_view(),name = 'send_notifications1'),
     path('notifications1', views.Notifications.as_view(),name = 'Notifications1'),
-    path('edit_notif_settings1', views.EDIT_notif_settings.as_view(),name = 'EDIT_notif_settings1'),
     ]
 
 

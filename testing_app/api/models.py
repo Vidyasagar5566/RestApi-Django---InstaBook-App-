@@ -78,6 +78,29 @@ class User(AbstractUser):
         return str(self.email)
 
 
+# 1 lst_buy, 2 posts, 3 posts_admin, 4 events, 5 threads, 6 comments, 7 announcements, 8 messanger
+
+class FilterNotifications(models.Model):
+    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='FilterNotifications')
+    fcm_token = models.TextField(default="dfv",max_length=500)
+    lst_buy = models.BooleanField(default = True)
+    posts = models.BooleanField(default = True)
+    posts_admin = models.BooleanField(default = True)
+    events = models.BooleanField(default = True)
+    threads = models.BooleanField(default = True)
+    comments = models.BooleanField(default = True)
+    announcements = models.BooleanField(default = True)
+    messanger = models.BooleanField(default = True)
+    domain = models.TextField(default="@nitc.ac.in")
+
+
+    class Meta:
+        ordering = ['-username']
+
+    def __str__(self):
+         return str(self.username)
+
+
 
 class PostTable(models.Model):
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='post_table_username')

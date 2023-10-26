@@ -104,13 +104,13 @@ def team_members_transfer(old_team_mem,new_team_mem,id,category,name):
         try:
             user = User.objects.get(email = i)
             if category == 'club':
-                del[user.clz_clubs['team_member'][id]]
+                del[user.clz_clubs['team_member'][str(id)]]
             elif category == 'sport':
-                del[user.clz_sports['team_member'][id]]
+                del[user.clz_sports['team_member'][str(id)]]
             elif category == 'fest':
-                del[user.clz_fests['team_member'][id]]
+                del[user.clz_fests['team_member'][str(id)]]
             elif category == 'sac':
-                del[user.clz_sacs['team_member'][id]]
+                del[user.clz_sacs['team_member'][str(id)]]
             user.save()
         except:
             continue
@@ -120,13 +120,13 @@ def team_members_transfer(old_team_mem,new_team_mem,id,category,name):
         try:
             user = User.objects.get(email = i)
             if category == 'club':
-                user.clz_clubs['team_member'][id] = name
+                user.clz_clubs['team_member'][str(id)] = name
             elif category == 'sport':
-                user.clz_sports['team_member'][id] = name
+                user.clz_sports['team_member'][str(id)] = name
             elif category == 'fest':
-                user.clz_fests['team_member'][id] = name
+                user.clz_fests['team_member'][str(id)] = name
             elif category == 'sac':
-                user.clz_sacs['team_member'][id] = name
+                user.clz_sacs['team_member'][str(id)] = name
             user.save()
         except:
             continue
@@ -162,35 +162,54 @@ def bulk_notifications(fcm_tokens,title,description):
                     tokens=fcm_tokens[i*100:(i+1)*100],
                     data={"key1": "value1", "key2": "value2"},
                     )
-        #response = messaging.send_multicast(message)
+        response = messaging.send_multicast(message)
 
 
 class SendNotifications(APIView):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [TokenAuthentication,]
 
+
+# 1 lst_buy, 2 posts, 3 posts_admin, 4 events, 5 threads, 6 comments, 7 announcements, 8 messanger
+
+
     def post(self,request):
         data = request.data
-        users = User.objects.all()
+        user = request.user
+        filter_notifications = []
+        if data['notiff_sett'] == 1:
+            filter_notifications = api_models.FilterNotifications.objects.filter(lst_buy = True,domain = user.domain)
+        elif data['notiff_sett'] == 2:
+            filter_notifications = api_models.FilterNotifications.objects.filter(posts = True,domain = user.domain)
+        elif data['notiff_sett'] == 3:
+            filter_notifications = api_models.FilterNotifications.objects.filter(posts_admin = True,domain = user.domain)
+        elif data['notiff_sett'] == 4:
+            filter_notifications = api_models.FilterNotifications.objects.filter(events = True,domain = user.domain)
+        elif data['notiff_sett'] == 5:
+            filter_notifications = api_models.FilterNotifications.objects.filter(threads = True,domain = user.domain)
+        elif data['notiff_sett'] == 6:
+            filter_notifications = api_models.FilterNotifications.objects.filter(comments = True,domain = user.domain)
+
         fcm_tokens = []
-        for i in users:
-            if i.notif_settings[data['notiff_sett']] == '1' and i.token != "dfv":
-                fcm_tokens.append(i.token)
+        for i in filter_notifications:
+            fcm_tokens.append(i.fcm_token)
         bulk_notifications(fcm_tokens,data['title'],data['description'])
         return Response({"error":False})
 
     def put(self,request):
         user = request.user
         data = request.data
-        users = User.objects.all()
+        users = User.objects.filter(domain = user.domain)
+        users = []
         fcm_tokens = []
         for i in users:
             if data['notif_year'][user.year - 1] == "1" and (user.branch in data['notif_branchs']):
                 i.notif_seen = False
                 i.notif_count += 1
                 i.save()
-                if i.notif_settings[7] == '1' and i.token != "dfv":
-                    fcm_tokens.append(i.token)
+                filter_notif = api_models.FilterNotifications.objects.get(username = i)
+                if filter_notif.announcements == True:
+                    fcm_tokens.append(filter_notif.fcm_token)
         bulk_notifications(fcm_tokens,user.email,"Gave Announcement : " + data['title'] + " : " + data['description'])
         return Response({"error":False})
 
@@ -238,7 +257,7 @@ class ALLCLUBS_list(APIView):
             club_head = User.objects.get(email = data['email'])
             new_club.head = club_head
             new_club.save()
-            club_head.clz_clubs['head'][new_club.id] = data['club_name']
+            club_head.clz_clubs['head'][str(new_club.id)] = data['club_name']
             club_head.save()
 
         except:
@@ -279,15 +298,32 @@ class ALLCLUBS_list(APIView):
             user = request.user
             data = request.data
 
-            new_club = models.AllClubs.objects.get(id = data['id'])
+            new_club = models.AllClubs.objects.get(id = int(data['id']))
             new_head = User.objects.get(email = data['new_head_email'])
             new_club.head = new_head
-            new_club.save()
-            del[user.clz_clubs['head'][data['id']]]
+            del[user.clz_clubs['head'][str(data['id'])]]
+            new_head.clz_clubs['head'][str(data['id'])] = new_club.name
             user.save()
-            new_head.clz_clubs['head'][data['id']] = new_club.name
             new_head.save()
+            new_club.save()
 
+        except:
+            error = True
+        return Response({'error':error})
+
+    def delete(self,request):
+        try:
+            user = request.user
+            data = request.data
+
+            new_club = models.AllClubs.objects.get(id = int(data['id']))
+            new_club_head = new_club.head
+            del[new_club_head.clz_clubs['head'][str(data['id'])]]
+            new_club_head.save()
+            for i in new_club.team_members.split('#'):
+                club_user = User.objects.get(email = i)
+                del[club_user.clz_clubs['team_member'][str(data['id'])]]
+                club_user.save()
 
         except:
             error = True
@@ -376,7 +412,7 @@ class ALLSPORTS_list(APIView):
             sport_head = User.objects.get(email = data['email'])
             new_sport.head = sport_head
             new_sport.save()
-            sport_head.clz_sports['head'][new_sport.id] = data['sport_name']
+            sport_head.clz_sports['head'][str(new_sport.id)] = data['sport_name']
             sport_head.save()
 
         except:
@@ -424,10 +460,28 @@ class ALLSPORTS_list(APIView):
             new_head = User.objects.get(email = data['new_head_email'])
             new_sport.head = new_head
             new_sport.save()
-            del[user.clz_sports['head'][data['id']]]
+            del[user.clz_sports['head'][str(data['id'])]]
             user.save()
-            new_head.clz_sports['head'][data['id']] = new_sport.name
+            new_head.clz_sports['head'][str(data['id'])] = new_sport.name
             new_head.save()
+
+        except:
+            error = True
+        return Response({'error':error})
+
+    def delete(self,request):
+        try:
+            user = request.user
+            data = request.data
+
+            new_sport = models.AllSports.objects.get(id = int(data['id']))
+            new_sport_head = new_sport.head
+            del[new_sport_head.clz_sports['head'][str(data['id'])]]
+            new_sport_head.save()
+            for i in new_sport.team_members.split('#'):
+                sport_user = User.objects.get(email = i)
+                del[sport_user.clz_sports['team_member'][str(data['id'])]]
+                clz_sports.save()
 
         except:
             error = True
@@ -515,7 +569,7 @@ class ALLFESTS_list(APIView):
             fest_head = User.objects.get(email = data['email'])
             new_fest.head = fest_head
             new_fest.save()
-            fest_head.clz_fests['head'][new_fest.id] = data['fest_name']
+            fest_head.clz_fests['head'][str(new_fest.id)] = data['fest_name']
             fest_head.save()
 
         except:
@@ -561,10 +615,29 @@ class ALLFESTS_list(APIView):
             new_head = User.objects.get(email = data['new_head_email'])
             new_fest.head = new_head
             new_fest.save()
-            del[user.clz_fests['head'][data['id']]]
+            del[user.clz_fests['head'][str(data['id'])]]
             user.save()
-            new_head.clz_fests['head'][data['id']] = new_fest.name
+            new_head.clz_fests['head'][str(data['id'])] = new_fest.name
             new_head.save()
+
+        except:
+            error = True
+        return Response({'error':error})
+
+
+    def delete(self,request):
+        try:
+            user = request.user
+            data = request.data
+
+            new_fest = models.AllFests.objects.get(id = int(data['id']))
+            new_fest_head = new_fest.head
+            del[new_fest_head.clz_fests['head'][str(data['id'])]]
+            new_fest_head.save()
+            for i in new_fest.team_members.split('#'):
+                fest_user = User.objects.get(email = i)
+                del[fest_user.clz_fests['team_member'][str(data['id'])]]
+                fest_user.save()
 
         except:
             error = True
@@ -641,7 +714,7 @@ class SAC_list(APIView):
             sac_head = User.objects.get(email = data['email'])
             sac.head = sac_head
             sac.save()
-            sac_head.clz_sacs['head'][sac.id] = data['role']
+            sac_head.clz_sacs['head'][str(sac.id)] = data['role']
             sac_head.save()
 
         except:
@@ -680,9 +753,9 @@ class SAC_list(APIView):
             new_head = User.objects.get(email = data['new_head_email'])
             sac.head = new_head
             sac.save()
-            del[user.clz_sacs['head'][data['id']]]
+            del[user.clz_sacs['head'][str(data['id'])]]
             user.save()
-            new_head.clz_sacs['head'][data['id']] = sac.role
+            new_head.clz_sacs['head'][str(data['id'])] = sac.role
             new_head.save()
 
         except:
@@ -691,7 +764,19 @@ class SAC_list(APIView):
 
 
 
+    def delete(self,request):
+        try:
+            user = request.user
+            data = request.data
 
+            new_sac = models.SAC_MEMS.objects.get(id = int(data['id']))
+            new_sac_head = new_sac.head
+            del[new_sac_head.clz_sacs['head'][str(data['id'])]]
+            new_sac_head.save()
+
+        except:
+            error = True
+        return Response({'error':error})
 
 
 # TEAM MEMBERS
@@ -712,25 +797,13 @@ class CLUB_SPORT_FEST_MEMB(APIView):
                     team_mem_data.append(user)
                 except:
                     continue
-            serializer = serializers.UserSerializer(team_mem_data, many=True)
+            serializer = serializers.SmallUserSerializer(team_mem_data, many=True)
 
             return Response(serializer.data)
         except:
             error = True
         return Response({'error':error})
 
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            user = User.objects.get(username = data['club_sport'])
-            #user = User.objects.get(username = "cricket")
-            club_files = user.post_table_username.all()
-            serializer = api_serializers.PostTableSerializer(club_files, many=True)
-            return Response(serializer.data)
-        except:
-            error = True
-        return Response({'error':error})
 
 
 
@@ -1040,6 +1113,7 @@ class ACADEMIC_list(APIView):
             academic.thu = data['thu']
             academic.fri = data['fri']
             academic.sat = data['sat']
+            academic.domain = user.domain
             academic.save()
         except:
             error = True
@@ -1057,7 +1131,7 @@ class SECURITY(APIView):
         try:
             user = request.user
             data = request.data
-            Report = api_models.Reports()
+            Report = models.Reports()
             Report.username = user
             Report.report_belongs = data['report_belongs']
             Report.description = data['description']
@@ -1099,52 +1173,6 @@ class SECURITY(APIView):
 
 
 
-
-
-## EDIT NOTIFICATIONS AND NOTIFICATION SEEN
-
-class EDIT_notif_settings(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-    def post(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.data
-            notif = data['notif_settings']
-            index = data['index']
-            settings = user.notif_settings
-            user.notif_settings = settings[:int(index)] + notif + settings[int(index)+1:]
-            user.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-    def delete(self,request):
-        error = False
-        try:
-            user = request.user
-            user.notif_seen = True
-            user.notif_count = 0
-            user.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-## EDIT NOTIFICATION IDS FOR TIME TABLES(BRANCHES AND ELECTIVES)
-
-    def get(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.query_params
-            user.notif_ids = data['notif_ids']
-            user.save()
-        except:
-            error = True
-        return Response({'error':error})
-
-
 class Notifications(APIView):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [TokenAuthentication,]
@@ -1156,12 +1184,9 @@ class Notifications(APIView):
             user.notif_seen = True
             user.notif_count = 0
             user.save()
-            data1 = models.Notifications.objects.all()
+            data1 = models.Notifications.objects.filter(username = user)
             data = []
             for i in data1:
-                if i.username == user:
-                    data.append(i)
-                    continue
                 if user.branch in i.allow_branchs and i.allow_years[user.year -1] == '1':
                     data.append(i)
             serializer = serializers.NotificationsSerializer(data,many = True)

@@ -11,10 +11,18 @@ class UserSerializer(ModelSerializer):
         model = User
         fields = "__all__"
 
+
 class SmallUserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['username','domain','email','user_mark','star_mark','profile_pic','phn_num','file_type','is_admin','is_student_admin']
+
+
+class FilterNotificationsSerializer(ModelSerializer):
+    class Meta:
+        model = models.FilterNotifications
+        fields = "__all__"
+
 
 class Lost_FoundSerializer(ModelSerializer):
     class Meta:

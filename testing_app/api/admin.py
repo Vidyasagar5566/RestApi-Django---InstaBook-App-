@@ -15,7 +15,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     fieldsets = (
-        (None, {'fields': ('email', 'password', 'username','domain',
+        (None, {'fields': ('email', 'password' ,'username','domain',
 
                            'roll_num','phn_num','profile_pic','file_type','bio','course','branch','batch','year','skills','date_of_birth',
 
@@ -82,7 +82,7 @@ admin.site.register(models.Ratings)
 admin.site.register(models.Mess_table)
 admin.site.register(models.Academic_table)
 admin.site.register(models.Time_table)
-
+admin.site.register(models.FilterNotifications)
 
 
 

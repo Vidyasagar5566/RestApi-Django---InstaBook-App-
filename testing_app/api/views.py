@@ -95,11 +95,7 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            user = User.objects.get(email = 'testing5566@gmail.com')
-            posts = models.PostTable.objects.all()
-            serializer = serializers.PostTableSerializer(posts,many = True)
-            return Response(serializer.data)
-
+           users = User.objects.all()
 
         except:
             error = True
@@ -120,15 +116,24 @@ class Register_EMAIL_check(APIView):
             return Response({"error":False,"password":user.password1})
         except:
             email = data['email']
+            check_email = email.split('@')
             username = email.split('@')[0]
             if 'nit' in check_email[1] or 'iit' in check_email[1] or 'iiit' in check_email[1]:
 
                 password = username + str(random.randint(100,1000000))
                 try:
-                    user = User.objects.create_user(email = email,username=username,password=password,password1=password)
+                    user = User.objects.create_user(email = email,username=username,password=password,password1=password,domain = '@'+check_email[1])
+                    notif_filter = FilterNotifications()
+                    notif_filter.username = user
+                    notif_filter.domain = '@'+check_email[1]
+                    notif_filter.save()
                 except:
                     x = random.randint(0,10000)
-                    user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password)
+                    user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,domain = '@'+check_email[1])
+                    notif_filter = FilterNotifications()
+                    notif_filter.username = user
+                    notif_filter.domain = '@'+check_email[1]
+                    notif_filter.save()
                 return Response({"error":False,"password":password})
             else:
                 return Response({"error":True,"text":'email_desnt match'})
@@ -173,16 +178,19 @@ class GET_user(APIView):
     def get(self,request):
         user = request.user
         data = request.query_params
-
-        if data['email'] != '' :
-            user = User.objects.get(email = data['email'])
-
         try:
             user.token = data['token']
             user.platform = data['platform']
+            notif_filter = models.FilterNotifications.objects.get(username = user)
+            notif_filter.fcm_token = data['token']
+            notif_filter.save()
         except:
             h = 2
         user.save()
+
+
+        if data['email'] != '' :
+            user = User.objects.get(email = data['email'])
 
 
         serializer = serializers.UserSerializer(user)
@@ -198,6 +206,59 @@ class GET_user(APIView):
         except:
             error = True
         return Response({'error':error})
+
+
+
+
+## EDIT NOTIFICATIONS AND NOTIFICATION SEEN
+
+class EDIT_notif_settings(APIView):
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication,]
+
+    def get(self,request):
+        error = False
+        try:
+            user = request.user
+            notif_sett = models.FilterNotifications.objects.get(username = user)
+            serializer = serializers.FilterNotificationsSerializer([notif_sett],many = True)
+            return Response(serializer.data)
+        except:
+            error = True
+        return Response({'error':error})
+
+
+
+    def post(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.data
+            notif_sett = models.FilterNotifications.objects.get(username = user)
+            notif_sett.lst_buy = data['lst_buy']
+            notif_sett.posts = data['posts']
+            notif_sett.posts_admin = data['posts_admin']
+            notif_sett.events = data['events']
+            notif_sett.threads = data['threads']
+            notif_sett.comments = data['comments']
+            notif_sett.announcements = data['announcements']
+            notif_sett.messanger =data['messanger']
+            notif_sett.save()
+        except:
+            error = True
+        return Response({'error':error})
+
+    def delete(self,request):
+        error = False
+        try:
+            user = request.user
+            user.notif_seen = True
+            user.notif_count = 0
+            user.save()
+        except:
+            error = True
+        return Response({'error':error})
+
 
 
 class LST_list(APIView):
@@ -249,6 +310,7 @@ class LST_list(APIView):
             lst.title = data['title']
             lst.tag = data['tag']
             lst.description = data['description']
+            lst.domain = user.domain
             lst.save()
             if data['tag'] == 'lost/found':
                 user.lst_count += 1
@@ -317,6 +379,7 @@ class LST_Comment_list(APIView):
             new_comment.Comment = data['comment']
             new_comment.username = user
             new_comment.save()
+            new_comment.domain = user.domain
             LST_list.comment_count += 1
             LST_list.save()
 
@@ -350,13 +413,27 @@ class POST_list(APIView):
             start = int(data['num_list'])
             user = request.user
             post_list1 = []
-            if data['domain'] == 'All':
-                post_list1 = models.PostTable.objects.filter(all_universities = True)
-            else:
-                if user.domain == data['domain']:
-                    post_list1 = models.PostTable.objects.filter(domain = data['domain'])
+            try:
+                if data['admin_posts'] == "true":
+                    post_list2 = models.PostTable.objects.filter(domain = user.domain)
+                    for i in post_list2:
+                        if i.username.is_admin == True:
+                            post_list1.append(i)
+                elif data['domain'] == 'All':
+                    post_list1 = models.PostTable.objects.filter(all_universities = True)
                 else:
-                    post_list1 = models.PostTable.objects.filter(domain = data['domain'],all_universities = True)
+                    if user.domain == data['domain']:
+                        post_list1 = models.PostTable.objects.filter(domain = data['domain'])
+                    else:
+                        post_list1 = models.PostTable.objects.filter(domain = data['domain'],all_universities = True)
+            except:
+                if data['domain'] == 'All':
+                    post_list1 = models.PostTable.objects.filter(all_universities = True)
+                else:
+                    if user.domain == data['domain']:
+                        post_list1 = models.PostTable.objects.filter(domain = data['domain'])
+                    else:
+                        post_list1 = models.PostTable.objects.filter(domain = data['domain'],all_universities = True)
             post_list1 = post_list1[start : 4 + start]
             post_list = []
             for i in post_list1:
@@ -418,7 +495,7 @@ class POST_list(APIView):
                 user.post_count += 1
                 user.save()
             post.category = data['category']
-
+            post.domain = user.domain
             post.save()
         except:
             error = True
@@ -514,6 +591,7 @@ class POST_LIKE_list(APIView):
             post_like = models.post_Likes()
             post_like.username = user
             post_like.post_id = post
+            post_like.domain = user.domain
             post_like.save()
             post.like_count += 1
             post.save()
@@ -614,7 +692,7 @@ class EVENT_list(APIView):
                 sac.save()
                 event.sac = sac
             event.category = data['category']
-
+            event.domain = user.domain
 
             event.save()
 
@@ -771,7 +849,7 @@ class ALERT_list(APIView):
                 user.post_count += 1
                 user.save()
             alert.category = data['category']
-
+            alert.domain = user.domain
 
 
             alert.save()
@@ -837,6 +915,7 @@ class ALERT_CMNT_list(APIView):
                 new_comment.img_ratio = 0.0
             new_comment.allow_branchs = data['allow_branchs']
             new_comment.allow_years = data['allow_years']
+            new_comment.domain = user.domain
             new_comment.save()
             ALERT_list.save()
 
@@ -898,69 +977,81 @@ class PEOFILE_list(APIView):
             # GETTING HEADS OF CATEGORY EX:- CLUBS,SPORTS ETC..
             heads_ids = data['head_ids'].split('#')
             heads = []
+            head_serializer_data = []
             for i in heads_ids:
-                if data['category'] == 'club':
-                    club = api2_models.AllClubs.objects.get(id = int(i))
-                    heads.append(club)
-                elif data['category'] == 'sport':
-                    sport = api2_models.AllSports.objects.get(id = int(i))
-                    heads.append(sport)
-                elif data['category'] == 'fest':
-                    fest = api2_models.AllFests.objects.get(id = int(i))
-                    heads.append(fest)
-                elif data['category'] == 'sac':
-                    sac = api2_models.SAC_MEMS.objects.get(id = int(i))
-                    heads.append(sac)
+                try:
+                    if data['category'] == 'club':
+                        club = api2_models.AllClubs.objects.get(id = int(i))
+                        heads.append(club)
+                    elif data['category'] == 'sport':
+                        sport = api2_models.AllSports.objects.get(id = int(i))
+                        heads.append(sport)
+                    elif data['category'] == 'fest':
+                        fest = api2_models.AllFests.objects.get(id = int(i))
+                        heads.append(fest)
+                    elif data['category'] == 'sac':
+                        sac = api2_models.SAC_MEMS.objects.get(id = int(i))
+                        heads.append(sac)
+                except:
+                    a = 0
             else:
-                if data['category'] == 'club':
-                    head_serializer = api2_serializers.AllClubsSerializer(heads,many=True)
-                elif data['category'] == 'sport':
-                    head_serializer = api2_serializers.AllSportsSerializer(heads,many=True)
-                elif data['category'] == 'fest':
-                    head_serializer = api2_serializers.AllFestsSerializer(heads,many=True)
-                elif data['category'] == 'sac':
-                    head_serializer = api2_serializers.SAC_MEMSSerializer(heads,many = True)
+                try:
+                    if data['category'] == 'club':
+                        head_serializer = api2_serializers.AllClubsSerializer(heads,many=True)
+                        head_serializer_data = head_serializer.data
+                    elif data['category'] == 'sport':
+                        head_serializer = api2_serializers.AllSportsSerializer(heads,many=True)
+                        head_serializer_data = head_serializer.data
+                    elif data['category'] == 'fest':
+                        head_serializer = api2_serializers.AllFestsSerializer(heads,many=True)
+                        head_serializer_data = head_serializer.data
+                    elif data['category'] == 'sac':
+                        head_serializer = api2_serializers.SAC_MEMSSerializer(heads,many = True)
+                        head_serializer_data = head_serializer.data
+                except:
+                    a = 0
+
 
             # GETTING MEMBERS OF CATEGORY EX:- CLUBS,SPORTS ETC..
             mems_ids = data['member_ids'].split('#')
             mems = []
+            mems_serializer_data = []
             for i in mems_ids:
-                if data['category'] == 'club':
-                    club = api2_models.AllClubs.objects.get(id = int(i))
-                    mems.append(club)
-                elif data['category'] == 'sport':
-                    sport = api2_models.AllSports.objects.get(id = int(i))
-                    mems.append(sport)
-                elif data['category'] == 'fest':
-                    fest = api2_models.AllFests.objects.get(id = int(i))
-                    mems.append(fest)
-                elif data['category'] == 'sac':
-                    sac = api2_models.SAC_MEMS.objects.get(id = int(i))
-                    mems.append(sac)
+                try:
+                    if data['category'] == 'club':
+                        club = api2_models.AllClubs.objects.get(id = int(i))
+                        mems.append(club)
+                    elif data['category'] == 'sport':
+                        sport = api2_models.AllSports.objects.get(id = int(i))
+                        mems.append(sport)
+                    elif data['category'] == 'fest':
+                        fest = api2_models.AllFests.objects.get(id = int(i))
+                        mems.append(fest)
+                    elif data['category'] == 'sac':
+                        sac = api2_models.SAC_MEMS.objects.get(id = int(i))
+                        mems.append(sac)
+                except:
+                    a = 0
             else:
-                if data['category'] == 'club':
-                    mems_serializer = api2_serializers.AllClubsSerializer(mems,many=True)
-                elif data['category'] == 'sport':
-                    mems_serializer = api2_serializers.AllSportsSerializer(mems,many=True)
-                elif data['category'] == 'fest':
-                    mems_serializer = api2_serializers.AllFestsSerializer(mems,many=True)
-                elif data['category'] == 'sac':
-                    mems_serializer = api2_serializers.SAC_MEMSSerializer(mems,many = True)
+                try:
+                    if data['category'] == 'club':
+                        mems_serializer = api2_serializers.AllClubsSerializer(mems,many=True)
+                        mems_serializer_data = mems_serializer.data
+                    elif data['category'] == 'sport':
+                        mems_serializer = api2_serializers.AllSportsSerializer(mems,many=True)
+                        mems_serializer_data = mems_serializer.data
+                    elif data['category'] == 'fest':
+                        mems_serializer = api2_serializers.AllFestsSerializer(mems,many=True)
+                        mems_serializer_data = mems_serializer.data
+                    elif data['category'] == 'sac':
+                        mems_serializer = api2_serializers.SAC_MEMSSerializer(mems,many = True)
+                        mems_serializer_data = mems_serializer.data
+                except:
+                    a = 0
 
             ## returning all the data
-            try:
-                return Response([head_serializer.data,mems_serializer.data])
-            except:
-                return Response([[],[]])
 
-
-
-
-
-
-
-
-
+            return Response([head_serializer_data,mems_serializer_data,data])
 
         except:
             error = True
@@ -1101,10 +1192,8 @@ class CALENDER_EVENTS_list(APIView):
             cal_events =  models.CalenderEvents.objects.filter(username = user,domain = data['domain']) | models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'])
             for i in cal_events:
                 if i.cal_event_type == "self":
-                    #if str(i.event_date)[:10] not in dates:
                     dates[str(i.event_date) +'&&'+ i.title ] = ""
                 elif (i.year[user.year - 1] == '1') and (user.branch in i.branch):
-                    #if str(i.event_date)[:10] not in dates:
                     dates[str(i.event_date) +'&&'+ i.title] = ""
             final_dates = list(dates.keys())
             final_dates.sort()
@@ -1120,7 +1209,7 @@ class CALENDER_EVENTS_list(APIView):
             user = request.user
             data = request.query_params
             calender_date_events_self = models.CalenderEvents.objects.filter(username = user,cal_event_type = "self")
-            calender_date_events_all = models.CalenderEvents.objects.filter(cal_event_type = "all")
+            calender_date_events_all = models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'])
             calender_date_events = []
             for i in calender_date_events_self:
                 a = str(i.event_date)
@@ -1130,7 +1219,7 @@ class CALENDER_EVENTS_list(APIView):
                 a = str(i.event_date)
                 if a[0:10] == data['calender_date'] and i.year[user.year - 1] == '1' and user.branch in i.branch:
                     calender_date_events.append(i)
-            activities_all = models.Events.objects.all()
+            activities_all = models.Events.objects.filter(domain = data['domain'])
             date_activities = []
             for i in activities_all:
                 a = str(i.event_date)[0:10]
@@ -1171,6 +1260,7 @@ class CALENDER_EVENTS_list(APIView):
             calander_event.branch = data['branch']
             calander_event.year = data['year']
             calander_event.event_date = data['event_date']
+            calander_event.domain = user.domain
             calander_event.save()
             return Response({'error':error,'id':calander_event.id})
         except:
@@ -1260,6 +1350,7 @@ class Messanger(APIView):
             else:
                 message.message_body_file = 'body'
             message.message_replyto = data['message_replyto']
+            message.domain = user.domain
             message.save()
 
             data1 = Message(

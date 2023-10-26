@@ -11,6 +11,7 @@ urlpatterns = [
     path('login2', obtain_auth_token),
     path('register/email_check2', views.Register_EMAIL_check.as_view(),name = 'Register1'),
     path('get_user2', views.GET_user.as_view(),name = 'GET_user1'),
+    path('edit_notif_settings1', views.EDIT_notif_settings.as_view(),name = 'EDIT_notif_settings1'),
     path('lost_found/list1', views.LST_list.as_view(),name = 'LST_list1'),
     path('lost_found/comment_list1', views.LST_Comment_list.as_view(),name = 'LST_Comment_list1'),
     path('post/list1', views.POST_list.as_view(),name = 'POST_list1'),
