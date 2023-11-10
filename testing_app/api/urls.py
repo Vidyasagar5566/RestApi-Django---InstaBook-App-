@@ -7,6 +7,12 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
 
+##  For only web.
+    path('login2_token', views.GET_token.as_view(),name = 'GET_token'),
+
+
+#####
+
     path('test', views.testing.as_view(),name = 'login'),
     path('login2', obtain_auth_token),
     path('register/email_check2', views.Register_EMAIL_check.as_view(),name = 'Register1'),
@@ -27,8 +33,7 @@ urlpatterns = [
     path('cal_events/list1', views.CALENDER_EVENTS_list.as_view(),name = 'CALENDER_EVENTS_list'),
 
 # MESSANGER
-    path('messanger1', views.Messanger.as_view(),name = 'Messanger1'),
-    path('user_messanger1', views.USER_Messanger.as_view(),name = 'user_messanger1'),
+    path('user_messanger', views.USER_Messanger.as_view(),name = 'user_messanger1'),
 
     ]
 

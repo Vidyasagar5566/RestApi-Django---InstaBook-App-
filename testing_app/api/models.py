@@ -12,6 +12,8 @@ from api2 import models as api2_models
 
 
 class User(AbstractUser):
+    user_uuid =  models.UUIDField(default=uuid.uuid4)
+
     email = models.CharField(default="",max_length=100,unique = True)
     username = models.CharField(default="-",max_length=100,unique = True)
     password1 = models.CharField(default="@Vidyasag1234",max_length=100)
@@ -32,6 +34,7 @@ class User(AbstractUser):
     is_faculty = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_student_admin = models.BooleanField(default=False)
+    is_placement_admin = models.BooleanField(default=False)
 
     instabook_role = models.CharField(default="@",max_length=100)
     faculty_role = models.CharField(default="@",max_length=100)
@@ -399,6 +402,7 @@ class CalenderEvents(models.Model):
     year = models.CharField(default="@",max_length=100)
     event_date = models.DateTimeField(default=timezone.now)
     posted_date = models.DateTimeField(default=timezone.now)
+    all_universities = models.BooleanField(default = True)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:

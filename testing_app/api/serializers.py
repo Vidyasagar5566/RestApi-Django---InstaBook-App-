@@ -15,7 +15,7 @@ class UserSerializer(ModelSerializer):
 class SmallUserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['username','domain','email','user_mark','star_mark','profile_pic','phn_num','file_type','is_admin','is_student_admin']
+        fields = ['user_uuid','username','domain','email','user_mark','star_mark','profile_pic','phn_num','file_type','is_admin','is_student_admin']
 
 
 class FilterNotificationsSerializer(ModelSerializer):

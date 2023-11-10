@@ -14,6 +14,7 @@ from rest_framework.authtoken.models import Token
 User = get_user_model()
 import random
 from firebase_admin.messaging import Message, Notification
+from firebase_admin import messaging
 from fcm_django.models import FCMDevice
 from django.db.models import Q
 from django.utils.timezone import localtime
@@ -141,10 +142,10 @@ class testing_api2(APIView):
         error = False
         password = ""
         try:
-            user = User.objects.get(email = 'testing5566@gmail.com')
-            sac = models.SAC_MEMS.objects.all()
-            serializer = serializers.SAC_MEMSSerializer(sac,many = True)
-            return Response(serializer.data)
+
+            user = User.objects.get(email = "shiva@gmail.com")
+            users = User.objects.all()
+
         except:
             error = True
         return Response({"error":error,"password":password})
@@ -157,7 +158,7 @@ def bulk_notifications(fcm_tokens,title,description):
         message = messaging.MulticastMessage(
                     notification=messaging.Notification(
                     title=title,
-                    body=description,
+                    body=description
                     ),
                     tokens=fcm_tokens[i*100:(i+1)*100],
                     data={"key1": "value1", "key2": "value2"},
@@ -815,6 +816,7 @@ class ALL_BRANCHES(APIView):
     def get(self,request):
         error = False
         try:
+            user = request.user
             data = request.query_params
             all_branches = api_models.UniBranches.objects.filter(domain = data['domain'],course = data['course'])
             serializer = serializers.UniBranchesSerializer(all_branches,many = True)
@@ -851,9 +853,10 @@ class ALL_SEM_SUBS(APIView):
     def post(self,request):
         error = False
         try:
+            user = request.user
             data = request.data
             sub = api_models.BranchSub()
-            sub.username = request.user
+            sub.username = user
             sub.sub_name = data['sub_name']
             sub.domain = user.domain
             sub.sub_id = data['sub_id']
@@ -899,10 +902,11 @@ class ALL_SUB_YEARS(APIView):
     def post(self,request):
         error = False
         try:
+            user = request.user
             data = request.data
             sub = api_models.BranchSub.objects.get(id = int(data['sub_id']))
             new_year = api_models.BranchSubYears()
-            new_year.username = request.user
+            new_year.username = user
             new_year.domain = user.domain
             new_year.sub_name = sub
             new_year.year_name = data['year_name']
@@ -918,6 +922,7 @@ class ALL_SUB_YEARS(APIView):
         error = False
         try:
             data = request.data
+            user = request.user
             year = api_models.BranchSubYears.objects.get(id = int(data['year_id']))
             year.year_name = data['year_name']
             year.private = data['private']
@@ -950,8 +955,9 @@ class ALL_SUB_YEAR_FILES(APIView):
         error = False
         try:
             data = request.data
+            user = request.user
             qns_file  = api_models.BranchSubFiles()
-            qns_file.username = request.user
+            qns_file.username = user
             year = api_models.BranchSubYears.objects.get(id = data['year_id'])
             qns_file.year_id = year
             qns_file.domain = user.domain
@@ -980,6 +986,7 @@ class ALL_SUB_YEAR_FILES(APIView):
         error = False
         try:
             data = request.data
+            user = request.user
             qns_file  = api_models.BranchSubFiles.objects.get(id = int(data['id']))
             user = User.objects.get(email = data['file_email'])
             qns_file.username = user
@@ -1005,7 +1012,7 @@ class RATINGS(APIView):
         try:
             user = request.user
             data = request.query_params
-            sub = api_models.CalenderSub.objects.get(id = int(data['sub_id']))
+            sub = api_models.BranchSub.objects.get(id = int(data['sub_id']))
             all_ratings = sub.CalenderSub_ratings.all()
             serializer = serializers.RatingsSerializer(all_ratings,many = True)
             return Response(serializer.data)
@@ -1019,23 +1026,25 @@ class RATINGS(APIView):
             user = request.user
             data = request.data
             try:
-                sub_name = api_models.CalenderSub.objects.get(id = int(data['sub_id']))
+                sub_name = api_models.BranchSub.objects.get(id = int(data['sub_id']))
                 rating  = api_models.Ratings.objects.get(username = user,sub_name = sub_name)
                 sub_name.tot_ratings_val = sub_name.tot_ratings_val - rating.rating + data['rating']
                 sub_name.save()
                 rating.domain = user.domain
                 rating.rating = data['rating']
+                rating.description = data['review']
                 rating.save()
                 return Response({'error':error,'id':rating.id})
             except:
                 rating  = api_models.Ratings()
                 rating.username = request.user
-                sub_name = api_models.CalenderSub.objects.get(id = int(data['sub_id']))
+                sub_name = api_models.BranchSub.objects.get(id = int(data['sub_id']))
                 sub_name.tot_ratings_val += data['rating']
                 sub_name.num_ratings += 1
                 sub_name.save()
                 rating.sub_name = sub_name
                 rating.rating = data['rating']
+                rating.description = data['review']
                 rating.save()
                 return Response({'error':error,'id':rating.id})
         except:

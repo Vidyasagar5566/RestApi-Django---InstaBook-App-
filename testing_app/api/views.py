@@ -6,17 +6,22 @@ import base64
 from . import serializers
 from . import models
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import authenticate
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 User = get_user_model()
 import random
+import uuid
 from firebase_admin.messaging import Message, Notification
+from firebase_admin import messaging
 from fcm_django.models import FCMDevice
 from django.db.models import Q
 from django.utils.timezone import localtime
 from api2 import models as api2_models
 from api2 import serializers as api2_serializers
+from api2 import views as api2_views
+
 
 
 #        user = request.user
@@ -95,7 +100,8 @@ class testing(APIView):
         error = False
         password = ""
         try:
-           users = User.objects.all()
+            #users = User.objects.all()
+            message_user = User.objects.get(email = "buddala_b190838ec@nitc.ac.in")
 
         except:
             error = True
@@ -171,6 +177,23 @@ class Register_EMAIL_check(APIView):
             error = True
         return Response({'error':error})
 
+
+class GET_token(APIView):
+
+    def post(self,request):
+        error = False
+        try:
+            data = request.data
+            user = User.objects.get(email = data['username'])#authenticate(email=data['username'], password=data['password'])
+            token, created = Token.objects.get_or_create(user=user)
+
+            return Response({'token':token.key})
+        except:
+            error = True
+        return Response({'error':error})
+
+
+
 class GET_user(APIView):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [TokenAuthentication,]
@@ -179,10 +202,12 @@ class GET_user(APIView):
         user = request.user
         data = request.query_params
         try:
-            user.token = data['token']
+            if data['platform'] != 'web':
+                user.token = data['token']
             user.platform = data['platform']
             notif_filter = models.FilterNotifications.objects.get(username = user)
-            notif_filter.fcm_token = data['token']
+            if data['platform'] != 'web':
+                notif_filter.fcm_token = data['token']
             notif_filter.save()
         except:
             h = 2
@@ -196,16 +221,7 @@ class GET_user(APIView):
         serializer = serializers.UserSerializer(user)
         return Response(serializer.data)
 
-    def delete(self,request):
-        error = False
-        try:
-            user = request.user
-            user.file_type = '0'
-            user.phn_num = "+91 000 000 0000"
-            user.save()
-        except:
-            error = True
-        return Response({'error':error})
+
 
 
 
@@ -880,17 +896,9 @@ class ALERT_CMNT_list(APIView):
             user = request.user
             #LST_list = models.Lost_Found.objects.get(title = "Lost my soulmate")
             ALERT_list = models.Alerts.objects.get(id = int(data['alert_id']))
-            comments1 = ALERT_list.alert_comment.all()
-            comments = []
-            for i in comments1:
-                if i.username == user:
-                    comments.append(i)
-                    continue
-                if user.branch in i.allow_branchs and i.allow_years[user.year -1] == '1':
-                    comments.append(i)
+            comments = ALERT_list.alert_comment.all()
             serializer = serializers.Alert_CommentsSerializer(comments,many = True)
             response = serializer.data
- #           response.reverse()
             return Response(response)
         except:
             error = True
@@ -1208,8 +1216,12 @@ class CALENDER_EVENTS_list(APIView):
         try:
             user = request.user
             data = request.query_params
-            calender_date_events_self = models.CalenderEvents.objects.filter(username = user,cal_event_type = "self")
-            calender_date_events_all = models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'])
+            calender_date_events_self = models.CalenderEvents.objects.filter(username = user,cal_event_type = "self",domain = data['domain'])
+            if user.domain == data['domain']:
+                calender_date_events_all = models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'])
+            else:
+                calender_date_events_all = models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'],all_universities = True)
+
             calender_date_events = []
             for i in calender_date_events_self:
                 a = str(i.event_date)
@@ -1219,7 +1231,11 @@ class CALENDER_EVENTS_list(APIView):
                 a = str(i.event_date)
                 if a[0:10] == data['calender_date'] and i.year[user.year - 1] == '1' and user.branch in i.branch:
                     calender_date_events.append(i)
-            activities_all = models.Events.objects.filter(domain = data['domain'])
+            if data['domain'] == user.domain:
+                activities_all = models.Events.objects.filter(domain = data['domain'])
+            else:
+                activities_all = models.Events.objects.filter(domain = data['domain'],all_universities = True)
+
             date_activities = []
             for i in activities_all:
                 a = str(i.event_date)[0:10]
@@ -1261,6 +1277,10 @@ class CALENDER_EVENTS_list(APIView):
             calander_event.year = data['year']
             calander_event.event_date = data['event_date']
             calander_event.domain = user.domain
+            try:
+                calander_event.all_universities = data['all_universities']
+            except:
+                calander_event.all_universities = True
             calander_event.save()
             return Response({'error':error,'id':calander_event.id})
         except:
@@ -1300,95 +1320,6 @@ class CALENDER_EVENTS_list(APIView):
         return Response({'error':error,'id':0})
 
 
-
-
-class Messanger(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = [TokenAuthentication,]
-
-    def get(self,request):
-        error = False
-        try:
-            user = request.user
-            data = request.query_params
-            required = {}
-            user_messages = models.Messanger.objects.filter(Q(message_sender=user) | Q(message_receiver=user))
-            for i in user_messages:
-                if i.message_sender == user:
-                    if i.message_receiver in required:
-                        continue
-                    else:
-                        required[i.message_receiver] = i
-                else:
-                    if i.message_sender in required:
-                        continue
-                    else:
-                        required[i.message_sender] = i
-            latest_messages = required.values()
-            serializer = serializers.MessangerSerializer(latest_messages,many = True)
-            response = serializer.data
-            return Response(response)
-        except:
-            error = True
-        return Response({'error':error})
-
-    def post(self,request):
-        error = False
-        try:
-            data = request.data
-            user = request.user
-            recevier = User.objects.get(email = data['email'])
-            message = models.Messanger()
-            message.message_sender = user
-            message.message_receiver = recevier
-            message.message_body = data['message_body']
-            message.domain = user.domain
-            message.messag_file_type = data['messag_file_type']
-            if data['messag_file_type'] != '0':
-                message.message_file = ContentFile(base64.b64decode(data['file']),data['file_name'])
-                message.message_body_file = 'file'
-            else:
-                message.message_body_file = 'body'
-            message.message_replyto = data['message_replyto']
-            message.domain = user.domain
-            message.save()
-
-            data1 = Message(
-            notification=Notification(title = user.email, body= " sends a message : " + data['message_body']),
-            #topic="Optional topic parameter: Whatever you want",
-            )
-
-            if recevier.notif_settings[8] == '1' and recevier.token != "dfv":
-                try:
-                    device = FCMDevice()
-                    device.registration_id  = recevier.token
-                    device.name = recevier.username
-                    device.save()
-                    device.send_message(data1)
-                except:
-                    try:
-                        device = FCMDevice.objects.get(registration_id = recevier.token)
-                        device.name = recevier.username
-                        device.save()
-                        device.send_message(data1)
-                    except:
-                        a = 10
-            return Response({'error':error,'id':message.id})
-        except:
-            error = True
-        return Response({'error':error,'id':''})
-
-    def delete(self,request):
-        error = False
-        try:
-            data = request.query_params
-            message = models.Messanger.objects.get(id = int(data['message_id']))
-            message.delete()
-        except:
-            error = True
-        return Response({'error':error})
-
-
 class USER_Messanger(APIView):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [TokenAuthentication,]
@@ -1402,9 +1333,9 @@ class USER_Messanger(APIView):
             data = request.query_params
             start = int(data['num_list'])
             if data['domain'] == 'All':
-                users_list = User.objects.filter(email__startswith = data['username_match']) | User.objects.filter(username__startswith = data['username_match']) | User.objects.filter(roll_num__startswith = data['username_match'])
+                users_list = User.objects.filter(email__icontains = data['username_match']) | User.objects.filter(username__icontains = data['username_match'])
             else:
-                users_list = User.objects.filter(email__startswith = data['username_match'],domain = data['domain']) | User.objects.filter(username__startswith = data['username_match'],domain = data['domain']) | User.objects.filter(roll_num__startswith = data['username_match'],domain = data['domain'])
+                users_list = User.objects.filter(email__icontains = data['username_match'],domain = data['domain']) | User.objects.filter(username__icontains = data['username_match'],domain = data['domain'])
             users_list = users_list[start : 100 + start]
             serializer = serializers.SmallUserSerializer(users_list, many=True)
             return Response(serializer.data)
@@ -1412,35 +1343,50 @@ class USER_Messanger(APIView):
             error = True
         return Response({'error':error})
 
-## USER TO USER MESSAGES
+## USER TO USER MESSAGES NOTIFICATIONS
 
     def delete(self,request):
         error = False
         try:
             user = request.user
             data = request.query_params
-            start = int(data['num_list'])
-            chatting_user = User.objects.get(email = data['chattinguser_email'])
-            seen_messages = models.Messanger.objects.filter((Q(message_sender=chatting_user) & Q(message_receiver=user)))
-            for i in seen_messages:
-                if i.message_seen == True:
-                    break
-                else:
-                   i.message_seen = True
-                   i.save()
 
-            user_messages = models.Messanger.objects.filter((Q(message_sender=user) & Q(message_receiver=chatting_user)) | (Q(message_sender=chatting_user) & Q(message_receiver=user)))
-            user_messages = user_messages[start : 20 + start]
-            serializer = serializers.MessagesSerializer(user_messages,many = True)
-            response = serializer.data
-            response.reverse()
-            return Response(response)
+            user_ids = data["chattinguser_email"].split('#')
+
+            fcm_tokens = []
+            temp_users = []
+            for i in user_ids:
+                temp_user = User.objects.get(user_uuid = i)
+                temp_users.append(temp_user)
+                fcm_tokens.append(temp_user.token)
+
+
+            api2_views.bulk_notifications(fcm_tokens,user.email,": Messaged : " + data['message'])
+
+
+            return Response({'error':error})
         except:
             error = True
         return Response({'error':error})
 
 
+## UUID TO USERS LIST.
 
+    def put(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.query_params
+            all_uuids = data['user_uuids'].split('#')
+            all_msg_users = []
+            for i in all_uuids:
+                user = User.objects.get(user_uuid = i)
+                all_msg_users.append(user)
+            serializer = serializers.SmallUserSerializer(all_msg_users,many = True)
+            return Response(serializer.data)
+        except:
+            error = True
+        return Response({'error':error})
 
 
 
