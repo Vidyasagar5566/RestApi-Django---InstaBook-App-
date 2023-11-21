@@ -156,6 +156,7 @@ class Notifications(models.Model):
     title = models.CharField(max_length=100,default="")
     description = models.TextField(default="")
     branch = models.CharField(default="@",max_length=100)
+    onlyUsername = models.BooleanField(default=False)
     batch = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE",max_length=100)
     year = models.CharField(default="1111",max_length=100)
     img = models.FileField(upload_to = 'pg',default = 'static/img.png')#notif

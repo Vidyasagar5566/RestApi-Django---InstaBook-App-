@@ -197,6 +197,8 @@ class SendNotifications(APIView):
         bulk_notifications(fcm_tokens,data['title'],data['description'])
         return Response({"error":False})
 
+
+#for announcements
     def put(self,request):
         user = request.user
         data = request.data
@@ -695,7 +697,10 @@ class SAC_list(APIView):
         error = False
         try:
             data = request.query_params
-            sac = models.SAC_MEMS.objects.filter(domain = data['domain'])
+            if data['domain'] == "All":
+                sac = models.SAC_MEMS.objects.all()
+            else:
+                sac = models.SAC_MEMS.objects.filter(domain = data['domain'])
             serializer = serializers.SAC_MEMSSerializer(sac,many = True)
             return Response(serializer.data)
         except:
@@ -860,6 +865,8 @@ class ALL_SEM_SUBS(APIView):
             sub.sub_name = data['sub_name']
             sub.domain = user.domain
             sub.sub_id = data['sub_id']
+            if data['sub_id'] == "CPC":
+                sub.InternCompany = data["InternCompany"]
             sub.save()
             return Response({'error':error,'id':sub.id})
         except:
@@ -1193,10 +1200,13 @@ class Notifications(APIView):
             user.notif_seen = True
             user.notif_count = 0
             user.save()
-            data1 = models.Notifications.objects.filter(username = user)
+            data1 = models.Notifications.objects.all()
             data = []
             for i in data1:
-                if user.branch in i.allow_branchs and i.allow_years[user.year -1] == '1':
+                if i.username == user:
+                    data.append(i)
+                    continue
+                if user.branch in i.allow_branchs and i.allow_years[user.year -1] == '1' and i.onlyUsername == False:
                     data.append(i)
             serializer = serializers.NotificationsSerializer(data,many = True)
             return Response(serializer.data)

@@ -100,8 +100,11 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            #users = User.objects.all()
-            message_user = User.objects.get(email = "buddala_b190838ec@nitc.ac.in")
+            users = User.objects.all()
+            for i in users:
+                i.update_mark = "instabook1"
+                i.save()
+
 
         except:
             error = True
@@ -289,16 +292,10 @@ class LST_list(APIView):
 
             user = request.user
             data1 = []
-            if data['domain'] == 'All':
-                if data['email'] == 'All':
-                    data1 = models.Lost_Found.objects.all()
-                else:
-                    data1 = models.Lost_Found.objects.filter(username = User.objects.get(email = data['email']))
+            if data['email'] == '':
+                data1 = models.Lost_Found.objects.filter(domain = data['domain'],tag = data['tag'],category = data['category'])
             else:
-                if data['email'] == 'All':
-                    data1 = models.Lost_Found.objects.filter(domain = data['domain'])
-                else:
-                    data1 = models.Lost_Found.objects.filter(username = User.objects.get(email = data['email']))
+                data1 = models.Lost_Found.objects.filter(username = User.objects.get(email = data['email']),tag = data['tag'],category = data['category'])
             data1 = data1[start : 60 + start]
             data = []
             for i in data1:
@@ -325,10 +322,12 @@ class LST_list(APIView):
             lst.domain = user.domain
             lst.title = data['title']
             lst.tag = data['tag']
+            lst.category = data['category']
+            lst.price = data['price']
             lst.description = data['description']
             lst.domain = user.domain
             lst.save()
-            if data['tag'] == 'lost/found':
+            if data['tag'] == 'lost' or data['tag'] == 'found':
                 user.lst_count += 1
             else:
                 user.buy_count += 1
@@ -398,6 +397,23 @@ class LST_Comment_list(APIView):
             new_comment.domain = user.domain
             LST_list.comment_count += 1
             LST_list.save()
+
+            api2_views.bulk_notifications([LST_list.username.token],user.email,": Requested " +  data['comment'] +" for Your: "  + LST_list.title)
+
+            notif = api2_models.Notifications()
+            notif.username = LST_list.username
+            notif.domain = LST_list.username.domain
+            notif.title = LST_list.username.email + " : send a request for " + LST_list.title
+            notif.description = data['comment']
+            notif.onlyUsername = True
+            notif.save()
+
+            lstUser = LST_list.username
+            lstUser.notif_seen = False
+            lstUser.notif_count += 1
+            lstUser.save()
+
+
 
             return Response({'error':error,'id':new_comment.id,"not":"not sent"})
         except:
@@ -1216,11 +1232,14 @@ class CALENDER_EVENTS_list(APIView):
         try:
             user = request.user
             data = request.query_params
-            calender_date_events_self = models.CalenderEvents.objects.filter(username = user,cal_event_type = "self",domain = data['domain'])
+
             if user.domain == data['domain']:
                 calender_date_events_all = models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'])
+                calender_date_events_self = models.CalenderEvents.objects.filter(username = user,cal_event_type = "self",domain = data['domain'])
             else:
                 calender_date_events_all = models.CalenderEvents.objects.filter(cal_event_type = "all",domain = data['domain'],all_universities = True)
+                calender_date_events_self = []
+
 
             calender_date_events = []
             for i in calender_date_events_self:

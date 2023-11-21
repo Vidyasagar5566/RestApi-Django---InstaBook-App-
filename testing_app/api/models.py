@@ -172,7 +172,11 @@ class Lost_Found(models.Model):
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='lst_found_username')
     title = models.CharField(max_length=50,default="")
     description = models.TextField(default="")
-    tag = models.CharField(max_length=50,default="lost/found")
+    tag = models.CharField(max_length=50,default="lost",choices = (('lost','lost'),('found','found'),('buy','buy'),('sell','sell')))
+    category = models.CharField(max_length=50,default="belongings",
+               choices = (('all','all'),('cards','cards'),('essentials','essentials'),('smartDevices','smartDevices'),('belongings','belongings'),
+               ('valuables','valuables'),('clothings','clothings'),('rideShares','rideShares'),('usedCampusItems','usedCampusItems'),('houseSharings','houseSharings'),('others','others')))
+    price = models.IntegerField(default=0)
     img = models.ImageField(upload_to = 'pg',default = 'static/img.png')#lost_found
     img_ratio = models.FloatField(default = 1.00)
     comment_count = models.IntegerField(default=0)
@@ -186,9 +190,8 @@ class Lost_Found(models.Model):
     def __str__(self):
          return str(self.username)
 
-  #  def delete(self, *args, **kwargs):
-  #      self.img.delete(save=False)
-  #      super().delete(*args, **kwargs)
+
+
 
 class LST_Comments(models.Model):
     lst_cmnt_id = models.ForeignKey(Lost_Found, on_delete=models.CASCADE, related_name='lst_found_comment')
@@ -328,6 +331,7 @@ class BranchSub(models.Model):
     num_ratings = models.IntegerField(default=0)
     course = models.CharField(default="B.Tech",max_length=100,choices = (('B.Tech','B.Tech'),('M.Tech','M.Tech'),('PG','PG'),('Phd','Phd'),('MBA','MBA')))
     domain = models.TextField(default="@nitc.ac.in")
+    InternCompany = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-sub_name']

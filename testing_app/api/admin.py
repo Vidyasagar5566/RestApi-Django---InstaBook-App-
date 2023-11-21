@@ -15,11 +15,11 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     fieldsets = (
-        (None, {'fields': ('user_uuid','email', 'password' ,'username','domain',
+        (None, {'fields': ('user_uuid','email', 'password','password1' ,'username','domain',
 
                            'roll_num','phn_num','profile_pic','file_type','bio','course','branch','batch','year','skills','date_of_birth',
 
-                           'is_student_admin','is_admin','is_faculty','is_instabook','student_admin_role','admin_role','faculty_role','instabook_role',
+                           'is_student_admin','is_admin','is_faculty','is_instabook','is_placement_admin','student_admin_role','admin_role','faculty_role','instabook_role',
 
                            'user_mark','star_mark',
 
