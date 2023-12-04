@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.conf import settings
+from datetime import datetime
 import uuid
 from api2 import models as api2_models
 #workon testing
@@ -19,16 +20,16 @@ class User(AbstractUser):
     password1 = models.CharField(default="@Vidyasag1234",max_length=100)
 
     roll_num = models.CharField(default="",max_length=100)
-    phn_num = models.CharField(default="+91 000 000 0000",max_length = 17)
+    phn_num = models.CharField(default="0000000000",max_length = 10)
     profile_pic = models.ImageField(upload_to = 'pg',default = 'static/img.png')#uploads
     file_type = models.CharField(default="0",max_length=100)
     bio = models.CharField(max_length = 400,default="@")
     skills = models.JSONField(default = {'Programming_Languages': '','Projects':{},'Work_Experience':{},'Education_details':{}})
-    course = models.CharField(default="B.TECH",max_length=100)
+    course = models.CharField(default="B.Tech",max_length=100)
     branch = models.CharField(default="@",max_length=100)
     batch = models.CharField(default="@",max_length=100)
     year = models.IntegerField(default=0)
-    date_of_birth = models.DateTimeField(default=timezone.now)
+    date_of_birth = models.DateTimeField(default=datetime.now)
 
     is_instabook = models.BooleanField(default=False)
     is_faculty = models.BooleanField(default=False)
@@ -70,7 +71,8 @@ class User(AbstractUser):
     platform = models.CharField(default="android",max_length=50)
     domain = models.CharField(default="@nitc.ac.in",max_length=100)
     is_details = models.BooleanField(default=False)
-    update_mark = models.CharField(default="instabook",max_length=11)
+    update_mark = models.CharField(default="instabook3",max_length=11)
+    dating_profile = models.BooleanField(default=False)
 
 
 
@@ -117,11 +119,13 @@ class PostTable(models.Model):
     like_count = models.IntegerField(default=0)
     comment_count = models.IntegerField(default=0)
     post_hiders = models.TextField(default="")
-    posted_date = models.DateTimeField(default=timezone.now)
-    event_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
+    event_date = models.DateTimeField(default=datetime.now)
     Admin = models.BooleanField(default = False)
     all_universities = models.BooleanField(default = True)
     domain = models.TextField(default="@nitc.ac.in")
+
+    algoValue = models.FloatField(default = 1.00)
 
 
     category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
@@ -133,7 +137,7 @@ class PostTable(models.Model):
 
 
     class Meta:
-        ordering = ['-posted_date']
+        ordering = ['-algoValue']
 
     def __str__(self):
          return str(self.username)
@@ -145,7 +149,7 @@ class PostTable(models.Model):
 class post_Likes(models.Model):
     post_id = models.ForeignKey(PostTable, on_delete=models.CASCADE, related_name='post_like_id')
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='post_like_username')
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:
@@ -158,7 +162,7 @@ class post_Comments(models.Model):
     post_id = models.ForeignKey(PostTable, on_delete=models.CASCADE, related_name='post_comment')
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='post_comment_username')
     Comment = models.TextField(default="")
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:
@@ -181,7 +185,7 @@ class Lost_Found(models.Model):
     img_ratio = models.FloatField(default = 1.00)
     comment_count = models.IntegerField(default=0)
     lst_hiders = models.TextField(default="")
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:
@@ -197,7 +201,47 @@ class LST_Comments(models.Model):
     lst_cmnt_id = models.ForeignKey(Lost_Found, on_delete=models.CASCADE, related_name='lst_found_comment')
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='lst_cmnt_username',default="")
     Comment = models.TextField(default="")
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
+    domain = models.TextField(default="@nitc.ac.in")
+
+    class Meta:
+        ordering = ['-posted_date']
+
+    def __str__(self):
+        return str(self.username) + ":" + str(self.lst_cmnt_id)
+
+
+
+class Buy_Sell(models.Model):
+    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='buy_sell_username')
+    title = models.CharField(max_length=50,default="")
+    description = models.TextField(default="")
+    tag = models.CharField(max_length=50,default="buy",choices = (('lost','lost'),('found','found'),('buy','buy'),('sell','sell')))
+    category = models.CharField(max_length=50,default="belongings",
+               choices = (('all','all'),('cards','cards'),('essentials','essentials'),('smartDevices','smartDevices'),('belongings','belongings'),
+               ('valuables','valuables'),('clothings','clothings'),('rideShares','rideShares'),('usedCampusItems','usedCampusItems'),('houseSharings','houseSharings'),('others','others')))
+    price = models.IntegerField(default=0)
+    img = models.ImageField(upload_to = 'pg',default = 'static/img.png')#lost_found
+    img_ratio = models.FloatField(default = 1.00)
+    comment_count = models.IntegerField(default=0)
+    lst_hiders = models.TextField(default="")
+    posted_date = models.DateTimeField(default=datetime.now)
+    domain = models.TextField(default="@nitc.ac.in")
+
+    class Meta:
+        ordering = ['-posted_date']
+
+    def __str__(self):
+         return str(self.username)
+
+
+
+
+class BS_Comments(models.Model):
+    bs_cmnt_id = models.ForeignKey(Buy_Sell, on_delete=models.CASCADE, related_name='buy_sell_comment')
+    username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='bs_cmnt_username',default="")
+    Comment = models.TextField(default="")
+    posted_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:
@@ -219,9 +263,11 @@ class Events(models.Model):
     is_like = models.BooleanField(default=False)
     like_count = models.IntegerField(default=0)
     event_date = models.DateTimeField(default="2023-06-30T08:23:17Z")
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     all_universities = models.BooleanField(default = True)
     domain = models.TextField(default="@nitc.ac.in")
+
+    algoValue = models.FloatField(default = 1.00)
 
     category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
     club = models.ForeignKey(api2_models.AllClubs,on_delete=models.CASCADE, related_name='event_from_club',blank=True,null=True)
@@ -243,7 +289,7 @@ class Events(models.Model):
 class Event_likes(models.Model):
     event_id = models.ForeignKey(Events,on_delete=models.CASCADE,related_name='event_like_id')
     username = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name='event_like')
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:
@@ -259,11 +305,14 @@ class Alerts(models.Model):
     img = models.FileField(upload_to = 'pg',default = 'static/img.png')#alerts
     img_ratio = models.FloatField(default = 0.0)
     comment_count = models.IntegerField(default=0)
-    allow_branchs = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE",max_length=100)
-    allow_years = models.CharField(default="1111",max_length=100)
-    posted_date = models.DateTimeField(default=timezone.now)
+    allow_branchs = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE@Other",max_length=100)
+    allow_years = models.CharField(default="11111",max_length=100)
+    allow_courses = models.CharField(default="B.Tech@M.Tech@PG@Phd@MBA@Other@B.Arch",max_length=100)
+    posted_date = models.DateTimeField(default=datetime.now)
     all_universities = models.BooleanField(default = True)
     domain = models.TextField(default="@nitc.ac.in")
+
+    algoValue = models.FloatField(default = 1.00)
 
 
     category = models.CharField(default="student",max_length=100,choices = (('student','student'),('club','club'),('sport','sport'),('fest','fest'),('sac','sac')))
@@ -290,7 +339,7 @@ class ALERT_Comments(models.Model):
     img_ratio = models.FloatField(default = 0.0)
     allow_branchs = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE",max_length=100)
     allow_years = models.CharField(default="1111",max_length=100)
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:
@@ -306,7 +355,7 @@ class UniBranches(models.Model):
     course = models.CharField(default="B.Tech",max_length=100,choices = (('B.Tech','B.Tech'),('M.Tech','M.Tech'),('PG','PG'),('Phd','Phd'),('MBA','MBA')))
     branch_name = models.CharField(default="CS",max_length=100)
     semisters = models.TextField(default="")
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
     priority = models.CharField(default="CS",max_length=100)
 
@@ -326,12 +375,14 @@ class BranchSub(models.Model):
     all_years = models.TextField(default="@")
     num_years = models.IntegerField(default=0)
     description = models.TextField(default="@")
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     tot_ratings_val = models.IntegerField(default=0)
     num_ratings = models.IntegerField(default=0)
     course = models.CharField(default="B.Tech",max_length=100,choices = (('B.Tech','B.Tech'),('M.Tech','M.Tech'),('PG','PG'),('Phd','Phd'),('MBA','MBA')))
     domain = models.TextField(default="@nitc.ac.in")
     InternCompany = models.BooleanField(default=False)
+    PlacementCompany = models.BooleanField(default=True)
+
 
     class Meta:
         ordering = ['-sub_name']
@@ -347,9 +398,10 @@ class BranchSubYears(models.Model):
     private = models.BooleanField(default=False)
     num_files = models.IntegerField(default=0)
     description = models.TextField(default="@")
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     course = models.CharField(default="B.Tech",max_length=100,choices = (('B.Tech','B.Tech'),('M.Tech','M.Tech'),('PG','PG'),('Phd','Phd'),('MBA','MBA')))
     domain = models.TextField(default="@nitc.ac.in")
+    InternCompany = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-year_name']
@@ -366,7 +418,7 @@ class BranchSubFiles(models.Model):
     file_type = models.CharField(default="@",max_length=100)
     file_name = models.CharField(default="@",max_length=100)
     year = models.CharField(default="@",max_length=100)
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     course = models.CharField(default="B.Tech",max_length=100,choices = (('B.Tech','B.Tech'),('M.Tech','M.Tech'),('PG','PG'),('Phd','Phd'),('MBA','MBA')))
     domain = models.TextField(default="@nitc.ac.in")
 
@@ -383,7 +435,7 @@ class Ratings(models.Model):
     description = models.TextField(default="@")
     rating = models.IntegerField(default=0)
     verified = models.BooleanField(default=False)
-    posted_date = models.DateTimeField(default=timezone.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:
@@ -404,8 +456,9 @@ class CalenderEvents(models.Model):
     file_type = models.CharField(default="@",max_length=100)
     branch = models.CharField(default="@",max_length=100)
     year = models.CharField(default="@",max_length=100)
-    event_date = models.DateTimeField(default=timezone.now)
-    posted_date = models.DateTimeField(default=timezone.now)
+    course = models.CharField(default="@",max_length=100)
+    event_date = models.DateTimeField(default=datetime.now)
+    posted_date = models.DateTimeField(default=datetime.now)
     all_universities = models.BooleanField(default = True)
     domain = models.TextField(default="@nitc.ac.in")
 
@@ -427,7 +480,7 @@ class Messanger(models.Model):
     message_body_file = models.CharField(default="@",max_length=100)
     message_replyto = models.TextField(default="@")
     message_seen = models.BooleanField(default=False)
-    message_date = models.DateTimeField(default=timezone.now)
+    message_date = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:

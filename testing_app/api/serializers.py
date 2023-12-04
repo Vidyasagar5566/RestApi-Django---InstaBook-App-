@@ -45,6 +45,28 @@ class LST_CommentsSerializer(ModelSerializer):
         response['username'] = SmallUserSerializer(instance.username).data
         return response
 
+
+class Buy_SellSerializer(ModelSerializer):
+    class Meta:
+        model = models.Buy_Sell
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
+
+
+class BS_CommentsSerializer(ModelSerializer):
+    class Meta:
+        model = models.BS_Comments
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
+
 class PostTableSerializer(ModelSerializer):
     class Meta:
         model = models.PostTable

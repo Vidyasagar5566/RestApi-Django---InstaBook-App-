@@ -65,6 +65,11 @@ admin.site.register(models.SAC_MEMS)
 admin.site.register(models.Notifications)
 admin.site.register(models.Reports)
 
+admin.site.register(models.DatingUser)
+admin.site.register(models.DatingUserReactions)
+
+
+
 
 
 

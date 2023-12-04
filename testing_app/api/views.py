@@ -29,12 +29,18 @@ from api2 import views as api2_views
 #        data = request.query_params
 
 
+datetime_weight = 0.6
+like_weight = 0.2
+comment_weight = 0.3
+
+
+
 domains = {
 
 'nitt.edu'  : 'Nit Trichy',
 'nitk.edu.in' : 'Nit Surathkal',
 'nitrkl.ac.in' : 'Nit Rourkela',
-'nitw.ac.in': ' Nit Warangal',
+'nitw.ac.in': 'Nit Warangal',
 'nitc.ac.in'   :'Nit Calicut',
 'vnit.ac.in':  'Nit Nagpur',
 'nitdgp.ac.in' :  'Nit Durgapur',
@@ -42,8 +48,8 @@ domains = {
 'mnit.ac.in':   'Nit Jaipur',
 'mnnit.ac.in' : 'Nit Allahabad',
 'nitkkr.ac.in':   'Nit Kurukshetra',
-'nitj.ac.in'  :' Nit Jalandhar',
-'svnit.ac.in': ' Nit Surat',
+'nitj.ac.in'  :'Nit Jalandhar',
+'svnit.ac.in': 'Nit Surat',
 'nitm.ac.in' : 'Nit Meghalaya',
 'nitp.ac.in' : 'Nit Patna',
 'nitrr.ac.in' : 'Nit Raipur',
@@ -53,8 +59,8 @@ domains = {
 'nitgoa.ac.in' :  'Nit Goa',
 'nitjsr.ac.in' : 'Nit Jamshedpur',
 'nitmanipur.ac.in':  'Nit Manipur',
-'nith.ac.in'   : 'Nit Hamper',
-'nituk.ac.in'  : ' Nit Uttarakhand',
+'nith.ac.in'   : 'Nit Hamipur',
+'nituk.ac.in'  : 'Nit Uttarakhand',
 'nitpy.ac.in' : 'Nit Puducherry',
 'nitap.ac.in' : 'Nit ArunaChalPradesh',
 'nitsikkim.ac.in':  'Nit Sikkim',
@@ -100,10 +106,30 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            users = User.objects.all()
-            for i in users:
-                i.update_mark = "instabook1"
-                i.save()
+            # users = User.objects.all()
+            # for i in users:
+            #     i.phn_num = "8688000000"
+            #     i.save()
+
+            user = User.objects.get(email = "buddala_b190838ec@nitc.ac.in")
+
+            files = models.BranchSubFiles.objects.filter(domain = "@iitm.ac.in")
+
+            for i in files:
+                if i.file_name == "Pdf Format.pdf":
+                    file = i
+                    break
+
+
+            years = models.BranchSubYears.objects.filter(domain = "@nitc.ac.in")
+            for i in years:
+                year = models.BranchSubFiles()
+                year.username = user
+                year.year_id = i
+                year.qn_ans_file = file.qn_ans_file
+                year.file_type = file.file_type
+                year.file_name = file.file_name
+                year.save()
 
 
         except:
@@ -127,26 +153,33 @@ class Register_EMAIL_check(APIView):
             email = data['email']
             check_email = email.split('@')
             username = email.split('@')[0]
-            if 'nit' in check_email[1] or 'iit' in check_email[1] or 'iiit' in check_email[1]:
 
-                password = username + str(random.randint(100,1000000))
-                try:
-                    user = User.objects.create_user(email = email,username=username,password=password,password1=password,domain = '@'+check_email[1])
-                    notif_filter = FilterNotifications()
-                    notif_filter.username = user
-                    notif_filter.domain = '@'+check_email[1]
-                    notif_filter.save()
-                except:
-                    x = random.randint(0,10000)
-                    user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,domain = '@'+check_email[1])
-                    notif_filter = FilterNotifications()
-                    notif_filter.username = user
-                    notif_filter.domain = '@'+check_email[1]
-                    notif_filter.save()
-                return Response({"error":False,"password":password})
+            for i in domains:
+                if i in check_email[1]:
+                    password = username + str(random.randint(100,1000000))
+                    try:
+                        user = User.objects.create_user(email = email,username=username,password=password,password1=password,domain = '@'+i)
+                        try:
+                            notif_filter = models.FilterNotifications()
+                            notif_filter.username = user
+                            notif_filter.domain = user.domain
+                            notif_filter.save()
+                        except:
+                            a = 0
+                    except:
+                        x = random.randint(0,10000)
+                        user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,domain = '@'+i)
+                        try:
+                            notif_filter = models.FilterNotifications()
+                            notif_filter.username = user
+                            notif_filter.domain = user.domain
+                            notif_filter.save()
+                        except:
+                            a = 0
+                    return Response({"error":False,"password":user.password1})
             else:
-                return Response({"error":True,"text":'email_desnt match'})
-        return Response({"error":error,"password":password})
+                return Response({"error":True,"password":'email_desnt match'})
+        return Response({"error":True,"password":password})
 
 
     #USER REGISTER FIRST TIME
@@ -292,10 +325,34 @@ class LST_list(APIView):
 
             user = request.user
             data1 = []
+
             if data['email'] == '':
-                data1 = models.Lost_Found.objects.filter(domain = data['domain'],tag = data['tag'],category = data['category'])
+                if data['category'] == "All":
+                    if data['tag'] == "All":
+                        data1 = models.Lost_Found.objects.filter(domain = data['domain'],tag = 'lost') | models.Lost_Found.objects.filter(domain = data['domain'],tag = 'found')
+                    else:
+                        data1 = models.Lost_Found.objects.filter(domain = data['domain'],tag = data['tag'])
+                else:
+                    if data['tag'] == "All":
+                        data1 = models.Lost_Found.objects.filter(domain = data['domain'],tag = 'lost',category = data['category']) | models.Lost_Found.objects.filter(domain = data['domain'],tag = 'found',category = data['category'])
+                    else:
+                        data1 = models.Lost_Found.objects.filter(domain = data['domain'],tag = data['tag'],category = data['category'])
+
             else:
-                data1 = models.Lost_Found.objects.filter(username = User.objects.get(email = data['email']),tag = data['tag'],category = data['category'])
+                profile_user = User.objects.get(email = data['email'])
+                if data['category'] == "All":
+                    if data['tag'] == "All":
+                        data1 = models.Lost_Found.objects.filter(username = profile_user,tag = 'lost') | models.Lost_Found.objects.filter(username = profile_user,tag = 'found')
+                    else:
+                        data1 = models.Lost_Found.objects.filter(username = profile_user,tag = data['tag'])
+                else:
+                    if data['tag'] == "All":
+                        data1 = models.Lost_Found.objects.filter(username = profile_user,tag = 'lost',category = data['category']) | models.Lost_Found.objects.filter(username = profile_user,tag = 'found',category = data['category'])
+                    else:
+                        data1 = models.Lost_Found.objects.filter(username = profile_user,tag = data['tag'],category = data['category'])
+
+
+
             data1 = data1[start : 60 + start]
             data = []
             for i in data1:
@@ -323,7 +380,6 @@ class LST_list(APIView):
             lst.title = data['title']
             lst.tag = data['tag']
             lst.category = data['category']
-            lst.price = data['price']
             lst.description = data['description']
             lst.domain = user.domain
             lst.save()
@@ -341,9 +397,12 @@ class LST_list(APIView):
     def delete(self,request):
         error = False
         try:
+            user = request.user
             data = request.query_params
             lst = models.Lost_Found.objects.get(id = int(data['lst_id']))
             lst.delete()
+            user.lst_count -= 1
+            user.save()
 
         except:
             error = True
@@ -403,7 +462,7 @@ class LST_Comment_list(APIView):
             notif = api2_models.Notifications()
             notif.username = LST_list.username
             notif.domain = LST_list.username.domain
-            notif.title = LST_list.username.email + " : send a request for " + LST_list.title
+            notif.title = user.email + " : send a request for " + LST_list.title
             notif.description = data['comment']
             notif.onlyUsername = True
             notif.save()
@@ -434,6 +493,186 @@ class LST_Comment_list(APIView):
             error = True
         return Response({'error':error})
 
+class BS_list(APIView):
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication,]
+
+    def get(self,request):
+        error = False
+        try:
+            data = request.query_params
+            start = int(data['num_list'])
+
+            user = request.user
+            data1 = []
+
+            if data['email'] == '':
+                if data['category'] == "All":
+                    if data['tag'] == "All":
+                        data1 = models.Buy_Sell.objects.filter(domain = data['domain'],tag = 'buy') | models.Buy_Sell.objects.filter(domain = data['domain'],tag = 'sell')
+                    else:
+                        data1 = models.Buy_Sell.objects.filter(domain = data['domain'],tag = data['tag'])
+                else:
+                    if data['tag'] == "All":
+                        data1 = models.Buy_Sell.objects.filter(domain = data['domain'],tag = 'buy',category = data['category']) | models.Buy_Sell.objects.filter(domain = data['domain'],tag = 'sell',category = data['category'])
+                    else:
+                        data1 = models.Buy_Sell.objects.filter(domain = data['domain'],tag = data['tag'],category = data['category'])
+
+            else:
+                profile_user = User.objects.get(email = data['email'])
+                if data['category'] == "All":
+                    if data['tag'] == "All":
+                        data1 = models.Buy_Sell.objects.filter(username = profile_user,tag = 'buy') | models.Buy_Sell.objects.filter(username = profile_user,tag = 'sell')
+                    else:
+                        data1 = models.Buy_Sell.objects.filter(username = profile_user,tag = data['tag'])
+                else:
+                    if data['tag'] == "All":
+                        data1 = models.Buy_Sell.objects.filter(username = profile_user,tag = 'buy',category = data['category']) | models.Buy_Sell.objects.filter(username = profile_user,tag = 'sell',category = data['category'])
+                    else:
+                        data1 = models.Buy_Sell.objects.filter(username = profile_user,tag = data['tag'],category = data['category'])
+            data1 = data1[start : 60 + start]
+            data = []
+            for i in data1:
+                if user.email in i.lst_hiders:
+                    continue
+                data.append(i)
+            serializer = serializers.Buy_SellSerializer(data, many=True)
+            return Response(serializer.data)
+        except:
+            error = True
+        return Response({"error":error})
+
+    def post(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.data
+            lst = models.Buy_Sell()
+            lst.username = user
+            if data['image_ratio'] == '1':
+                lst.img = ContentFile(base64.b64decode(data['file']),data['file_name'])
+            else:
+                lst.img_ratio = 0.0
+            lst.domain = user.domain
+            lst.title = data['title']
+            lst.tag = data['tag']
+            lst.category = data['category']
+            lst.description = data['description']
+            lst.domain = user.domain
+            lst.save()
+            if data['tag'] == 'lost' or data['tag'] == 'found':
+                user.lst_count += 1
+            else:
+                user.buy_count += 1
+            user.save()
+
+
+        except:
+            error = True
+        return Response({'error':error})
+
+    def delete(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.query_params
+            lst = models.Buy_Sell.objects.get(id = int(data['lst_id']))
+            lst.delete()
+            user.buy_count -= 1
+            user.save()
+
+        except:
+            error = True
+        return Response({'error':error})
+
+
+    def put(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.query_params
+            lst = models.Buy_Sell.objects.get(id = int(data['lst_id']))
+            lst.lst_hiders = lst.lst_hiders + user.email + "#"
+            lst.save()
+        except:
+            error = True
+        return Response({'error':error})
+
+
+class BS_Comment_list(APIView):
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication,]
+
+    def get(self,request):
+        error = False
+        try:
+            data = request.query_params
+            #LST_list = models.Lost_Found.objects.get(title = "Lost my soulmate")
+            BS_list = models.Buy_Sell.objects.get(id = int(data['lst_id']))
+            comments = BS_list.buy_sell_comment.all()
+            serializer = serializers.BS_CommentsSerializer(comments,many = True)
+            data1 = serializer.data
+            data1.reverse()
+            return Response(data1)
+        except:
+            error = True
+        return Response({"error":error})
+
+    def post(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.data
+            LST_list = models.Buy_Sell.objects.get(id = int(data['lst_id']))
+            new_comment = models.BS_Comments()
+            new_comment.bs_cmnt_id = LST_list
+            new_comment.domain = user.domain
+            new_comment.Comment = data['comment']
+            new_comment.username = user
+            new_comment.save()
+            new_comment.domain = user.domain
+            LST_list.comment_count += 1
+            LST_list.save()
+
+            api2_views.bulk_notifications([LST_list.username.token],user.email,": Requested " +  data['comment'] +" for Your: "  + LST_list.title)
+
+            notif = api2_models.Notifications()
+            notif.username = LST_list.username
+            notif.domain = LST_list.username.domain
+            notif.title = user.email + " : send a request for " + LST_list.title
+            notif.description = data['comment']
+            notif.onlyUsername = True
+            notif.save()
+
+            lstUser = LST_list.username
+            lstUser.notif_seen = False
+            lstUser.notif_count += 1
+            lstUser.save()
+
+
+
+            return Response({'error':error,'id':new_comment.id,"not":"not sent"})
+        except:
+            error = True
+        return Response({'error':error})
+
+
+    def delete(self,request):
+        error =  False
+        try:
+            data = request.query_params
+            comment_list = models.BS_Comments.objects.get(id = int(data['lst_cmnt_id']))  # id is primary key of comments
+            comment_list.delete()
+            lst = models.Buy_Sell.objects.get(id = int(data['lst_id']))
+            lst.comment_count -= 1
+            lst.save()
+        except:
+            error = True
+        return Response({'error':error})
+
+
+
+
 class POST_list(APIView):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [TokenAuthentication,]
@@ -452,7 +691,7 @@ class POST_list(APIView):
                         if i.username.is_admin == True:
                             post_list1.append(i)
                 elif data['domain'] == 'All':
-                    post_list1 = models.PostTable.objects.filter(all_universities = True)
+                    post_list1 = models.PostTable.objects.filter(all_universities = True) | models.PostTable.objects.filter(all_universities = False,domain = user.domain)
                 else:
                     if user.domain == data['domain']:
                         post_list1 = models.PostTable.objects.filter(domain = data['domain'])
@@ -466,7 +705,7 @@ class POST_list(APIView):
                         post_list1 = models.PostTable.objects.filter(domain = data['domain'])
                     else:
                         post_list1 = models.PostTable.objects.filter(domain = data['domain'],all_universities = True)
-            post_list1 = post_list1[start : 4 + start]
+            post_list1 = post_list1[start : 7 + start]
             post_list = []
             for i in post_list1:
                 if user.email in i.post_hiders:
@@ -528,6 +767,11 @@ class POST_list(APIView):
                 user.save()
             post.category = data['category']
             post.domain = user.domain
+
+            post.algoValue = (  datetime_weight * int(post.posted_date.timestamp()) +
+                                      like_weight * (post.like_count) +
+                                      comment_weight * (post.comment_count) )
+
             post.save()
         except:
             error = True
@@ -536,9 +780,12 @@ class POST_list(APIView):
     def delete(self,request):
         error = False
         try:
+            user = request.user
             data = request.query_params
             post = models.PostTable.objects.get(id = int(data['post_id']))
+            user.post_count -= 1
             post.delete()
+            user.save()
         except:
             error = True
         return Response({'error':error})
@@ -590,6 +837,9 @@ class PST_CMNT_list(APIView):
             post_cmnt.Comment = data['comment']
             post_cmnt.save()
             post_id.comment_count += 1
+            post_id.algoValue = (  datetime_weight * int(post_id.posted_date.timestamp()) +
+                                      like_weight * (post_id.like_count) +
+                                      comment_weight * (post_id.comment_count) )
             post_id.save()
 
             return Response({'error':error,'id':post_cmnt.id})
@@ -605,6 +855,9 @@ class PST_CMNT_list(APIView):
             post_cmnt.delete()
             post = models.PostTable.objects.get(id = int(data['post_id']))
             post.comment_count -= 1
+            post.algoValue = (  datetime_weight * int(post.posted_date.timestamp()) +
+                                      like_weight * (post.like_count) +
+                                      comment_weight * (post.comment_count) )
             post.save()
         except:
             error = True
@@ -626,6 +879,9 @@ class POST_LIKE_list(APIView):
             post_like.domain = user.domain
             post_like.save()
             post.like_count += 1
+            post.algoValue = (  datetime_weight * int(post.posted_date.timestamp()) +
+                                      like_weight * (post.like_count) +
+                                      comment_weight * (post.comment_count) )
             post.save()
 
         except:
@@ -646,6 +902,9 @@ class POST_LIKE_list(APIView):
                 for i in like:
                     i.delete()
             post.like_count -= 1
+            post.algoValue = (  datetime_weight * int(post.posted_date.timestamp()) +
+                                      like_weight * (post.like_count) +
+                                      comment_weight * (post.comment_count) )
             post.save()
         except:
             error = True
@@ -817,7 +1076,7 @@ class ALERT_list(APIView):
             user = request.user
             start = int(data['num_list'])
             if data['domain'] == 'All':
-                data1 = models.Alerts.objects.filter(all_universities = True)
+                data1 = models.Alerts.objects.filter(all_universities = True) | models.Alerts.objects.filter(all_universities = False,domain = user.domain)
             else:
                 if user.domain == data['domain']:
                     data1 = models.Alerts.objects.filter(domain = data['domain'])
@@ -829,7 +1088,7 @@ class ALERT_list(APIView):
                 if i.username == user:
                     data.append(i)
                     continue
-                if user.branch in i.allow_branchs and i.allow_years[user.year -1] == '1':
+                if user.branch in i.allow_branchs and i.allow_years[user.year -1] == '1' and user.course in i.allow_courses:
                     data.append(i)
             serializer = serializers.AlertsSerializer(data, many=True)
             return Response(serializer.data)
@@ -854,6 +1113,7 @@ class ALERT_list(APIView):
             alert.description = data['description']
             alert.allow_branchs = data['allow_branchs']
             alert.allow_years = data['allow_years']
+            alert.allow_courses = data['allow_courses']
             alert.all_universities = data['is_all_university']
 
 
@@ -878,7 +1138,7 @@ class ALERT_list(APIView):
                 sac.save()
                 alert.sac = sac
             else:
-                user.post_count += 1
+                user.thread_count += 1
                 user.save()
             alert.category = data['category']
             alert.domain = user.domain
@@ -893,9 +1153,12 @@ class ALERT_list(APIView):
     def delete(self,request):
         error = False
         try:
+            user = request.user
             data = request.query_params
             alert = models.Alerts.objects.get(id = int(data['alert_id']))
             alert.delete()
+            user.thread_count -= 1
+            user.save()
         except:
             error = True
         return Response({'error':error})
@@ -1217,7 +1480,7 @@ class CALENDER_EVENTS_list(APIView):
             for i in cal_events:
                 if i.cal_event_type == "self":
                     dates[str(i.event_date) +'&&'+ i.title ] = ""
-                elif (i.year[user.year - 1] == '1') and (user.branch in i.branch):
+                elif (i.year[user.year - 1] == '1') and (user.branch in i.branch) and (user.course in i.course):
                     dates[str(i.event_date) +'&&'+ i.title] = ""
             final_dates = list(dates.keys())
             final_dates.sort()
@@ -1248,7 +1511,7 @@ class CALENDER_EVENTS_list(APIView):
                     calender_date_events.append(i)
             for i in calender_date_events_all:
                 a = str(i.event_date)
-                if a[0:10] == data['calender_date'] and i.year[user.year - 1] == '1' and user.branch in i.branch:
+                if a[0:10] == data['calender_date'] and i.year[user.year - 1] == '1' and user.branch in i.branch and user.course in i.course:
                     calender_date_events.append(i)
             if data['domain'] == user.domain:
                 activities_all = models.Events.objects.filter(domain = data['domain'])
@@ -1294,6 +1557,7 @@ class CALENDER_EVENTS_list(APIView):
             calander_event.file_type = data['file_type']
             calander_event.branch = data['branch']
             calander_event.year = data['year']
+            calander_event.course = data['course']
             calander_event.event_date = data['event_date']
             calander_event.domain = user.domain
             try:
@@ -1331,6 +1595,7 @@ class CALENDER_EVENTS_list(APIView):
             calander_event.file_type = data['file_type']
             calander_event.branch = data['branch']
             calander_event.year = data['year']
+            calander_event.course = data['course']
             calander_event.event_date = data['event_date']
             calander_event.save()
             return Response({'error':error,'id':calander_event.id,'date':calander_event.event_date})
@@ -1375,12 +1640,38 @@ class USER_Messanger(APIView):
             fcm_tokens = []
             temp_users = []
             for i in user_ids:
-                temp_user = User.objects.get(user_uuid = i)
+                try:
+                    temp_user = User.objects.get(user_uuid = i)
+                except:
+                    a = 0
                 temp_users.append(temp_user)
                 fcm_tokens.append(temp_user.token)
 
 
             api2_views.bulk_notifications(fcm_tokens,user.email,": Messaged : " + data['message'])
+
+
+            return Response({'error':error})
+        except:
+            error = True
+        return Response({'error':error})
+
+
+
+## USER TO USER MESSAGES NOTIFICATIONS DATING USER
+
+    def patch(self,request):
+        error = False
+        try:
+            user = request.user
+            data = request.query_params
+
+            temp_user = User.objects.get(user_uuid = data["chattinguser_email"])
+            fcm_tokens = [temp_user.token]
+
+            datingUser = api2_models.DatingUser.objects.get(username = temp_user)
+
+            api2_views.bulk_notifications(fcm_tokens,datingUser.dummyName,": Messaged : " + data['message'])
 
 
             return Response({'error':error})
@@ -1399,8 +1690,12 @@ class USER_Messanger(APIView):
             all_uuids = data['user_uuids'].split('#')
             all_msg_users = []
             for i in all_uuids:
-                user = User.objects.get(user_uuid = i)
-                all_msg_users.append(user)
+                try:
+                    user = User.objects.get(user_uuid = i)
+                    all_msg_users.append(user)
+                except:
+                    a = 0
+
             serializer = serializers.SmallUserSerializer(all_msg_users,many = True)
             return Response(serializer.data)
         except:

@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.files.base import ContentFile
 import base64
+import datetime
 from . import serializers
 from . import models
 from api import models as api_models
@@ -18,11 +19,19 @@ from firebase_admin import messaging
 from fcm_django.models import FCMDevice
 from django.db.models import Q
 from django.utils.timezone import localtime
+from django.utils import timezone
+
 
 
 #        user = request.user
 #        data = request.data
 #        data = request.query_params
+
+
+
+datetime_weight = 0.6
+like_weight = 0.2
+comment_weight = 0.3
 
 domains = {
 
@@ -143,12 +152,18 @@ class testing_api2(APIView):
         password = ""
         try:
 
-            user = User.objects.get(email = "shiva@gmail.com")
-            users = User.objects.all()
+            # user = User.objects.get(email = "shiva@gmail.com")
+            # users = User.objects.all()
+
+
+            data = models.DatingUser.objects.all()
+            serializer = serializers.DatingUserSerializer(data,many = True)
+            return Response(serializer.data)
+
 
         except:
             error = True
-        return Response({"error":error,"password":password})
+        return Response({"error":error,"password":a})
 
 
 
@@ -163,7 +178,7 @@ def bulk_notifications(fcm_tokens,title,description):
                     tokens=fcm_tokens[i*100:(i+1)*100],
                     data={"key1": "value1", "key2": "value2"},
                     )
-        response = messaging.send_multicast(message)
+        # messaging.send_multicast(message)
 
 
 class SendNotifications(APIView):
@@ -195,7 +210,7 @@ class SendNotifications(APIView):
         for i in filter_notifications:
             fcm_tokens.append(i.fcm_token)
         bulk_notifications(fcm_tokens,data['title'],data['description'])
-        return Response({"error":False})
+        return Response({"error":False,'tokens':len(fcm_tokens)})
 
 
 #for announcements
@@ -203,18 +218,21 @@ class SendNotifications(APIView):
         user = request.user
         data = request.data
         users = User.objects.filter(domain = user.domain)
-        users = []
         fcm_tokens = []
         for i in users:
-            if data['notif_year'][user.year - 1] == "1" and (user.branch in data['notif_branchs']):
+            if data['notif_year'][i.year - 1] == "1" and (i.branch in data['notif_branchs']) and (i.course in data['notif_courses']):
                 i.notif_seen = False
                 i.notif_count += 1
                 i.save()
-                filter_notif = api_models.FilterNotifications.objects.get(username = i)
-                if filter_notif.announcements == True:
-                    fcm_tokens.append(filter_notif.fcm_token)
-        bulk_notifications(fcm_tokens,user.email,"Gave Announcement : " + data['title'] + " : " + data['description'])
-        return Response({"error":False})
+                try:
+
+                    filter_notif = api_models.FilterNotifications.objects.get(username = i)
+                    if filter_notif.announcements == True:
+                        fcm_tokens.append(filter_notif.fcm_token)
+                except:
+                    a = 0
+        bulk_notifications(fcm_tokens,user.email,"Gave Announcement : " + " : " + data['description'])
+        return Response({"error":False,"tokens":len(fcm_tokens)})
 
 
 
@@ -843,7 +861,10 @@ class ALL_SEM_SUBS(APIView):
         try:
             data = request.query_params
             if data['sub_id'] == 'CPC':
-                all_sub_names = api_models.BranchSub.objects.filter(sub_id = data['sub_id'])
+                if data['domain'] == "All":
+                    all_sub_names = api_models.BranchSub.objects.filter(sub_id = data['sub_id'],domain = "@nitc.ac.in")
+                else:
+                    all_sub_names = api_models.BranchSub.objects.filter(sub_id = data['sub_id'],domain = data['domain'])
             else:
                 all_sub_names = api_models.BranchSub.objects.filter(sub_id = data['sub_id'],domain = data['domain'],course = data['course'])
             serializer = serializers.CalenderSubSerializer(all_sub_names,many = True)
@@ -867,6 +888,7 @@ class ALL_SEM_SUBS(APIView):
             sub.sub_id = data['sub_id']
             if data['sub_id'] == "CPC":
                 sub.InternCompany = data["InternCompany"]
+                sub.PlacementCompany = data['PlacementCompany']
             sub.save()
             return Response({'error':error,'id':sub.id})
         except:
@@ -880,6 +902,9 @@ class ALL_SEM_SUBS(APIView):
             data = request.data
             sub = api_models.BranchSub.objects.get(id = int(data['sub_id']))
             sub.sub_name = data['sub_name']
+            if sub.sub_id == "CPC":
+                sub.InternCompany = data["InternCompany"]
+                sub.PlacementCompany = data['PlacementCompany']
             sub.save()
 
         except:
@@ -898,7 +923,12 @@ class ALL_SUB_YEARS(APIView):
         try:
             data = request.query_params
             sub = api_models.BranchSub.objects.get(id = int(data['sub_id']))
-            sub_years = sub.CalenderSub.all()
+
+            if data['inter_placement'] == "Intern":
+                sub_years = sub.CalenderSub.filter(InternCompany = True)
+            else:
+                sub_years = sub.CalenderSub.filter(InternCompany = False)
+
             serializer = serializers.CalenderSubYearsSerializer(sub_years,many = True)
             return Response(serializer.data)
         except:
@@ -918,7 +948,11 @@ class ALL_SUB_YEARS(APIView):
             new_year.sub_name = sub
             new_year.year_name = data['year_name']
             new_year.private = data['private']
+            if data['inter_placement'] == "Intern":
+                new_year.InternCompany = True
             new_year.save()
+            sub.num_years += 1
+            sub.save()
             return Response({'error':error,'id':new_year.id})
         except:
             error = True
@@ -973,6 +1007,7 @@ class ALL_SUB_YEAR_FILES(APIView):
             qns_file.file_type = data['file_type']
             qns_file.file_name = data['file_name']
             qns_file.save()
+            year.num_files += 1
             return Response({'error':error,'id':qns_file.id})
         except:
             error = True
@@ -1200,13 +1235,13 @@ class Notifications(APIView):
             user.notif_seen = True
             user.notif_count = 0
             user.save()
-            data1 = models.Notifications.objects.all()
+            data1 = models.Notifications.objects.filter(domain = user.domain)
             data = []
             for i in data1:
                 if i.username == user:
                     data.append(i)
                     continue
-                if user.branch in i.allow_branchs and i.allow_years[user.year -1] == '1' and i.onlyUsername == False:
+                if user.branch in i.batch and i.year[user.year -1] == '1' and user.course in i.course and i.onlyUsername == False:
                     data.append(i)
             serializer = serializers.NotificationsSerializer(data,many = True)
             return Response(serializer.data)
@@ -1224,9 +1259,13 @@ class Notifications(APIView):
             notif.domain = user.domain
             notif.title = data['title']
             notif.description = data['description']
-            notif.branch = data['notif_branchs']
+            notif.batch = data['notif_branchs']
             notif.year = data['notif_year']
+            notif.course = data['notif_courses']
             notif.save()
+            user.notif_seen = False
+            user.notif_count += 1
+            user.save()
 
         except:
             error = True
@@ -1241,6 +1280,173 @@ class Notifications(APIView):
         except:
             error = True
         return Response({'error':error})
+
+
+
+
+class DATING_USER(APIView):
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication,]
+
+    def get(self,request):
+        error = False
+        try:
+            user = request.user
+            data = models.DatingUser.objects.all()[:30]
+
+            for i in data:
+                try:
+                    dating_user_reaction = models.DatingUserReactions.objects.get(username  = user,DatingUser = i)
+                    i.is_reaction = dating_user_reaction.Reaction
+                except:
+                    i.is_reaction = 0
+
+            serializer = serializers.DatingUserSerializer(data,many = True)
+            return Response(serializer.data)
+        except:
+            error = True
+        return Response({'error':error})
+
+    def post(self,request):
+        error = False
+        try:
+            data = request.data
+            user = request.user
+            try:
+                datingUser = models.DatingUser.objects.get(username = user)
+            except:
+                datingUser = models.DatingUser()
+            datingUser.username = user
+            datingUser.dummyName = data['dummyName']
+            datingUser.dummyProfile = ContentFile(base64.b64decode(data['file']),data['file_name'])
+            datingUser.dummyBio = data['dummyBio']
+            datingUser.dummyDomain = data['dummyDomain']
+            datingUser.domain = user.domain
+            datingUser.posted_date = timezone.now()
+            datingUser.save()
+            user.dating_profile = True
+            user.save()
+
+            datingUser.algoValue = (  datetime_weight * int(datingUser.posted_date.timestamp()) +
+                                      like_weight * (datingUser.Reactions1_count + datingUser.Reactions2_count) +
+                                      comment_weight * (datingUser.numChats) )
+
+            datingUser.save()
+
+        except:
+            error = True
+        return Response({'error':error})
+
+    def patch(self,request):
+        error = False
+        try:
+            data = request.data
+            user = request.user
+            datingUser = models.DatingUser.objects.get(username = User.objects.get(email = data['dating_user_email']))
+            datingUser.numChats += 1
+            datingUser.algoValue = (  datetime_weight * int(datingUser.posted_date.timestamp()) +
+                                      like_weight * (datingUser.Reactions1_count + datingUser.Reactions2_count) +
+                                      comment_weight * (datingUser.numChats) )
+            datingUser.save()
+            datingUser = models.DatingUser.objects.get(username = user)
+            datingUser.numChats += 1
+            datingUser.algoValue = (  datetime_weight * int(datingUser.posted_date.timestamp()) +
+                                      like_weight * (datingUser.Reactions1_count + datingUser.Reactions2_count) +
+                                      comment_weight * (datingUser.numChats) )
+            datingUser.save()
+
+
+        except:
+            error = True
+        return Response({'error':error})
+
+    def delete(self,request):
+        error = False
+        try:
+            data = request.query_params
+            user = request.user
+            datingUser = models.DatingUser.objects.get(username = user)
+            datingUser.delete()
+            user.dating_profile = False
+            user.save()
+        except:
+            error = True
+        return Response({'error':error})
+
+
+    #FOR GETTING UUIDS TO PROFILES
+    def put(self,request):
+        error = False
+        try:
+            data = request.data
+            datedUuids = data['datedUuids'].split('#')
+
+            usersProfiles = []
+            for i in datedUuids:
+                usersProfiles.append(models.DatingUser.objects.get(username = User.objects.get(user_uuid = i)))
+            serializer = serializers.DatingUserSerializer(usersProfiles,many = True)
+            return Response(serializer.data)
+
+        except:
+            error = True
+        return Response({'error':error})
+
+
+
+
+class DATING_USER_REACTIONS(APIView):
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication,]
+
+    def post(self,request):
+        error = False
+        try:
+            data = request.data
+            user = request.user
+            dating_user = models.DatingUser.objects.get(username = User.objects.get(email = data['dating_user_email']))
+            try:
+                dating_user_reaction = models.DatingUserReactions.objects.get(username  = user,DatingUser = dating_user)
+                if data['Reaction'] == 1:
+                    dating_user.Reactions1_count += 1
+                    dating_user.Reactions2_count -= 1
+                elif data['Reaction'] == 2:
+                    dating_user.Reactions2_count += 1
+                    dating_user.Reactions1_count -= 1
+
+            except:
+                dating_user_reaction = models.DatingUserReactions()
+                dating_user_reaction.DatingUser = dating_user
+                dating_user_reaction.username = user
+                if data['Reaction'] == 1:
+                    dating_user.Reactions1_count += 1
+                elif data['Reaction'] == 2:
+                    dating_user.Reactions2_count += 1
+
+            dating_user_reaction.Reaction = data['Reaction']
+            dating_user_reaction.save()
+            dating_user.save()
+
+
+            dating_user.algoValue = (  datetime_weight * int(dating_user.posted_date.timestamp()) +
+                                      like_weight * (dating_user.Reactions1_count + dating_user.Reactions2_count) +
+                                      comment_weight * (dating_user.numChats) )
+            dating_user.save()
+
+        except:
+            error = True
+        return Response({'error':error})
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

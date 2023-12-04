@@ -153,6 +153,18 @@ class Time_tableSerializer(ModelSerializer):
         fields = "__all__"
 
 
+class DatingUserSerializer(ModelSerializer):
+    class Meta:
+        model = models.DatingUser
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
+        return response
+
+
+
 
 
 

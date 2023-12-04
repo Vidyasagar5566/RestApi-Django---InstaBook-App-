@@ -38,6 +38,12 @@ urlpatterns = [
 #Notifications
     path('send_notifications1', views.SendNotifications.as_view(),name = 'send_notifications1'),
     path('notifications1', views.Notifications.as_view(),name = 'Notifications1'),
+
+
+#DATINGUSERS
+    path('datingUser', views.DATING_USER.as_view(),name = 'DatingUser'),
+    path('datingUserReaction', views.DATING_USER_REACTIONS.as_view(),name = 'DATING_USER_REACTIONS'),
+
     ]
 
 

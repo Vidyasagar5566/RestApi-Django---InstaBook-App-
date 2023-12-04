@@ -29,7 +29,7 @@ class UserAdmin(DjangoUserAdmin):
 
                            'notif_settings','notif_seen','notif_count','notif_ids',
 
-                           'token','platform','is_details','update_mark',
+                           'token','platform','is_details','dating_profile','update_mark',
                             )}),
         ('Permissions', {'fields': (
             'is_active',
@@ -63,6 +63,8 @@ admin.site.register(models.post_Likes)
 admin.site.register(models.post_Comments)
 admin.site.register(models.Lost_Found)
 admin.site.register(models.LST_Comments)
+admin.site.register(models.Buy_Sell)
+admin.site.register(models.BS_Comments)
 admin.site.register(models.Events)
 admin.site.register(models.Event_likes)
 admin.site.register(models.Alerts)
