@@ -33,9 +33,10 @@ datetime_weight = 0.6
 like_weight = 0.2
 comment_weight = 0.3
 
+domains = {'nitt.': '@nitt.edu', 'nitk.': '@nitk.edu.in', 'nitrkl.': '@nitrkl.ac.in', 'nitw.': '@nitw.ac.in', 'nitc.': '@nitc.ac.in', 'vnit.': '@vnit.ac.in', 'nitdgp.': '@nitdgp.ac.in', 'nits.': '@nits.ac.in', 'mnit.': '@mnit.ac.in', 'mnnit.': '@mnnit.ac.in', 'nitkkr.': '@nitkkr.ac.in', 'nitj.': '@nitj.ac.in', 'svnit.': '@svnit.ac.in', 'nitm.': '@nitm.ac.in', 'nitp.': '@nitp.ac.in', 'nitrr.': '@nitrr.ac.in', 'nitsri.': '@nitsri.ac.in', 'manit.': '@manit.ac.in', 'nita.': '@nita.ac.in', 'nitgoa.': '@nitgoa.ac.in', 'nitjsr.': '@nitjsr.ac.in', 'nitmanipur.': '@nitmanipur.ac.in', 'nith.': '@nith.ac.in', 'nituk.': '@nituk.ac.in', 'nitpy.': '@nitpy.ac.in', 'nitap.': '@nitap.ac.in', 'nitsikkim.': '@nitsikkim.ac.in', 'nitdelhi.': '@nitdelhi.ac.in', 'nitmz.': '@nitmz.ac.in', 'nitnagaland.': '@nitnagaland.ac.in', 'nitandhra.': '@nitandhra.ac.in', 'iitm.': '@iitm.ac.in', 'iitd.': '@iitd.ac.in', 'iitb.': '@iitb.ac.in', 'iitk.': '@iitk.ac.in', 'iitr.': '@iitr.ac.in', 'iitkgp.': '@iitkgp.ac.in', 'iitg.': '@iitg.ac.in', 'iith.': '@iith.ac.in', 'iitbhu.': '@iitbhu.ac.in', 'iitism.': '@iitism.ac.in', 'iiti.': '@iiti.ac.in', 'iitrpr.': '@iitrpr.ac.in', 'iitmandi.': '@iitmandi.ac.in', 'iitgn.': '@iitgn.ac.in', 'iitj.': '@iitj.ac.in', 'iitp.': '@iitp.ac.in', 'iitbbs.': '@iitbbs.ac.in', 'iittp.': '@iittp.ac.in', 'iitpkd.': '@iitpkd.ac.in', 'iitjammu.': '@iitjammu.ac.in', 'iitdh.': '@iitdh.ac.in', 'iitbhilai.': '@iitbhilai.ac.in'}
 
 
-domains = {
+domains1 = {
 
 'nitt.edu'  : 'Nit Trichy',
 'nitk.edu.in' : 'Nit Surathkal',
@@ -106,30 +107,11 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            # users = User.objects.all()
+            users = User.objects.all()
             # for i in users:
-            #     i.phn_num = "8688000000"
-            #     i.save()
-
-            user = User.objects.get(email = "buddala_b190838ec@nitc.ac.in")
-
-            files = models.BranchSubFiles.objects.filter(domain = "@iitm.ac.in")
-
-            for i in files:
-                if i.file_name == "Pdf Format.pdf":
-                    file = i
-                    break
-
-
-            years = models.BranchSubYears.objects.filter(domain = "@nitc.ac.in")
-            for i in years:
-                year = models.BranchSubFiles()
-                year.username = user
-                year.year_id = i
-                year.qn_ans_file = file.qn_ans_file
-                year.file_type = file.file_type
-                year.file_name = file.file_name
-                year.save()
+            #     if i.platform == "android":
+            #         i.update_mark = "instabook4"
+            #         i.save()
 
 
         except:
@@ -158,7 +140,7 @@ class Register_EMAIL_check(APIView):
                 if i in check_email[1]:
                     password = username + str(random.randint(100,1000000))
                     try:
-                        user = User.objects.create_user(email = email,username=username,password=password,password1=password,domain = '@'+i)
+                        user = User.objects.create_user(email = email,username=username,password=password,password1=password,domain = domains[i])
                         try:
                             notif_filter = models.FilterNotifications()
                             notif_filter.username = user
@@ -168,7 +150,7 @@ class Register_EMAIL_check(APIView):
                             a = 0
                     except:
                         x = random.randint(0,10000)
-                        user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,domain = '@'+i)
+                        user = User.objects.create_user(email = email,username=username + "_" +  str(x) ,password=password,password1=password,domain = domains[i])
                         try:
                             notif_filter = models.FilterNotifications()
                             notif_filter.username = user
@@ -238,15 +220,17 @@ class GET_user(APIView):
         user = request.user
         data = request.query_params
         try:
-            if data['platform'] != 'web':
-                user.token = data['token']
+            user.token = data['token']
             user.platform = data['platform']
             notif_filter = models.FilterNotifications.objects.get(username = user)
-            if data['platform'] != 'web':
-                notif_filter.fcm_token = data['token']
+            notif_filter.fcm_token = data['token']
             notif_filter.save()
         except:
             h = 2
+        if data['platform'] == "android":
+            user.update_mark = "instabook4"
+        else:
+            user.update_mark = "instabook4"
         user.save()
 
 

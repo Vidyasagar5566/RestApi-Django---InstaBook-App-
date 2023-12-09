@@ -454,9 +454,9 @@ class CalenderEvents(models.Model):
     description = models.TextField(default="")
     calender_date_file = models.FileField(upload_to = 'pg',default = 'static/img.png')#cal_events
     file_type = models.CharField(default="@",max_length=100)
-    branch = models.CharField(default="@",max_length=100)
-    year = models.CharField(default="@",max_length=100)
-    course = models.CharField(default="@",max_length=100)
+    branch = models.CharField(default="CS@EC@EE@ME@CE@CH@BT@AR@MT@EP@PE@Other",max_length=100)
+    year = models.CharField(default="11111",max_length=100)
+    course = models.CharField(default="B.Tech@M.Tech@PG@Phd@MBA@Other@B.Arch",max_length=100)
     event_date = models.DateTimeField(default=datetime.now)
     posted_date = models.DateTimeField(default=datetime.now)
     all_universities = models.BooleanField(default = True)
