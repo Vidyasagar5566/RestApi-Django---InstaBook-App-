@@ -113,7 +113,6 @@ class testing(APIView):
             #         i.update_mark = "instabook4"
             #         i.save()
 
-
         except:
             error = True
         return Response({"error":error,"password":password})
@@ -689,7 +688,7 @@ class POST_list(APIView):
                         post_list1 = models.PostTable.objects.filter(domain = data['domain'])
                     else:
                         post_list1 = models.PostTable.objects.filter(domain = data['domain'],all_universities = True)
-            post_list1 = post_list1[start : 7 + start]
+            post_list1 = post_list1[start : 10 + start]
             post_list = []
             for i in post_list1:
                 if user.email in i.post_hiders:
@@ -989,6 +988,21 @@ class EVENT_LIKE_list(APIView):
     permission_classes = [IsAuthenticated, ]
     authentication_classes = [TokenAuthentication,]
 
+
+    def get(self,request):
+        error = False
+        try:
+            data = request.query_params
+            user = request.user
+            event = models.Events.objects.get(id = int(data['event_id']))
+            likes_list = event.event_like_id.all()
+            serializer = serializers.EventsLikeSerializer(likes_list, many=True)
+            return Response(serializer.data)
+
+        except:
+            error = True
+        return Response({'error':error})
+
     def post(self,request):
         error = False
         try:
@@ -1028,7 +1042,7 @@ class EVENT_LIKE_list(APIView):
 
     ## EVENT_UPDATE USING EVENT LIKE URL
 
-    def get(self,request):
+    def put(self,request):
         error = False
         try:
             data = request.query_params

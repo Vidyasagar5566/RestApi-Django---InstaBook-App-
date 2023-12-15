@@ -111,7 +111,17 @@ class EventsSerializer(ModelSerializer):
             response['fest'] = AllFests1Serializer(instance.fest).data
         elif response['category'] == "sac":
             response['sac'] = SAC_MEMS1Serializer(instance.sac).data
+        return response
 
+
+class EventsLikeSerializer(ModelSerializer):
+    class Meta:
+        model = models.Event_likes
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['username'] = SmallUserSerializer(instance.username).data
         return response
 
 class AlertsSerializer(ModelSerializer):

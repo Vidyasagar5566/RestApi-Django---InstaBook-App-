@@ -924,7 +924,7 @@ class ALL_SUB_YEARS(APIView):
             data = request.query_params
             sub = api_models.BranchSub.objects.get(id = int(data['sub_id']))
 
-            if data['inter_placement'] == "Intern":
+            if sub.sub_id == "CPC" and data['inter_placement'] == "Intern":
                 sub_years = sub.CalenderSub.filter(InternCompany = True)
             else:
                 sub_years = sub.CalenderSub.filter(InternCompany = False)
@@ -948,7 +948,7 @@ class ALL_SUB_YEARS(APIView):
             new_year.sub_name = sub
             new_year.year_name = data['year_name']
             new_year.private = data['private']
-            if data['inter_placement'] == "Intern":
+            if sub.sub_id == "CPC" and data['inter_placement'] == "Intern":
                 new_year.InternCompany = True
             new_year.save()
             sub.num_years += 1
