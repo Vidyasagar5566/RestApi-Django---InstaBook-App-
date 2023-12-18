@@ -153,7 +153,7 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            users = User.objects.all()
+            users = User.objects.get(username = "gautham")
             # for i in users:
             #     if i.platform == "android":
             #         i.update_mark = "instabook4"
