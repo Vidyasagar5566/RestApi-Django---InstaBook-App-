@@ -129,6 +129,17 @@ DATABASES = {
     }
 }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "esmus",
+#         "USER": "admin",
+#         "PASSWORD": "1W0UVChOep1EBtxfmc2t",
+#         "HOST": "esmus.c2xpl2fmhzxv.ap-southeast-1.rds.amazonaws.com",
+#         "PORT": "3306",
+#     }
+# }
+
 
 # DATABASES = {
 #     'default': {
