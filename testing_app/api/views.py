@@ -107,7 +107,7 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            users = User.objects.all()
+            users = User.objects.get(username = "gautham")
             # for i in users:
             #     if i.platform == "android":
             #         i.update_mark = "instabook4"
@@ -1442,7 +1442,7 @@ class PEOFILE_list(APIView):
                     i.is_like = True
                 except:
                     i.is_like = False
-            serializer = serializers.EventsSerializer(post_list, many=True)
+            serializer = serializers.EventsSerializer(event_list, many=True)
             return Response(serializer.data)
         except:
             error = True

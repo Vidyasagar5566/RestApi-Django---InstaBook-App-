@@ -131,13 +131,13 @@ DATABASES = {
 
 
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'StudentCommunity$default',
-#         'USER': 'StudentCommunity',
-#         'PASSWORD' : '@Vidyasag5566',
-#         'HOST' : 'StudentCommunity.mysql.pythonanywhere-services.com',
-#         'PORT': '3306',
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": "ESMUS",
+#         "USER": "admin",
+#         "PASSWORD": "1W0UVChOep1EBtxfmc2t",
+#         "HOST": "esmus.c2xpl2fmhzxv.ap-southeast-1.rds.amazonaws.com",
+#         "PORT": "3306",
 #     }
 # }
 
