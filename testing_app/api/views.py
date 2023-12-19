@@ -153,7 +153,7 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            users = User.objects.get(username = "gautham")
+            users = User.objects.get(username="gautham")
             # for i in users:
             #     if i.platform == "android":
             #         i.update_mark = "instabook4"
@@ -285,9 +285,9 @@ class GET_user(APIView):
         except:
             h = 2
         if data["platform"] == "android":
-            user.update_mark = "instabook4"
+            user.update_mark = "instabook5"
         else:
-            user.update_mark = "instabook4"
+            user.update_mark = "instabook5"
         user.save()
 
         if data["email"] != "":
