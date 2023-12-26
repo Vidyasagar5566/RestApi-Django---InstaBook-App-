@@ -289,9 +289,9 @@ class GET_user(APIView):
         except:
             h = 2
         if data["platform"] == "android":
-            user.update_mark = "instabook5"
+            user.update_mark = "instabook4"
         else:
-            user.update_mark = "instabook5"
+            user.update_mark = "instabook4"
         user.save()
 
         if data["email"] != "":
