@@ -178,7 +178,7 @@ def bulk_notifications(fcm_tokens,title,description):
                     tokens=fcm_tokens[i*100:(i+1)*100],
                     data={"key1": "value1", "key2": "value2"},
                     )
-        # messaging.send_multicast(message)
+        messaging.send_multicast(message)
 
 
 class SendNotifications(APIView):
@@ -196,15 +196,15 @@ class SendNotifications(APIView):
         if data['notiff_sett'] == 1:
             filter_notifications = api_models.FilterNotifications.objects.filter(lst_buy = True,domain = user.domain)
         elif data['notiff_sett'] == 2:
-            filter_notifications = api_models.FilterNotifications.objects.filter(posts = True,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(posts = True)#,domain = user.domain)
         elif data['notiff_sett'] == 3:
-            filter_notifications = api_models.FilterNotifications.objects.filter(posts_admin = True,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(posts_admin = True)#,domain = user.domain)
         elif data['notiff_sett'] == 4:
-            filter_notifications = api_models.FilterNotifications.objects.filter(events = True,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(events = True)#,domain = user.domain)
         elif data['notiff_sett'] == 5:
-            filter_notifications = api_models.FilterNotifications.objects.filter(threads = True,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(threads = True)#,domain = user.domain)
         elif data['notiff_sett'] == 6:
-            filter_notifications = api_models.FilterNotifications.objects.filter(comments = True,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(comments = True)#,domain = user.domain)
 
         fcm_tokens = []
         for i in filter_notifications:

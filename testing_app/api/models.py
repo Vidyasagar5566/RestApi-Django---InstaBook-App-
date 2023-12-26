@@ -276,9 +276,6 @@ class Events(models.Model):
     sac = models.ForeignKey(api2_models.SAC_MEMS,on_delete=models.CASCADE, related_name='event_from_sac',blank=True,null=True)
 
 
-
-
-
     class Meta:
         ordering = ['-posted_date']
 

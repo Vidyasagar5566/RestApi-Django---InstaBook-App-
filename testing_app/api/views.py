@@ -158,6 +158,10 @@ class testing(APIView):
             #     if i.platform == "android":
             #         i.update_mark = "instabook4"
             #         i.save()
+            placements = models.BranchSub.objects.filter(sub_id = "CPC",domain = "@nitc.ac.in")
+            for i in placements:
+                i.InternCompany = False
+                i.save()
 
         except:
             error = True
@@ -1138,9 +1142,8 @@ class EVENT_list(APIView):
                 sac.event_count += 1
                 sac.save()
                 event.sac = sac
-            event.category = data["category"]
-            event.domain = user.domain
 
+            event.category = data["category"]
             event.save()
 
         except:
@@ -1692,6 +1695,7 @@ class CALENDER_EVENTS_list(APIView):
                     and (user.course in i.course)
                 ):
                     dates[str(i.event_date) + "&&" + i.title] = ""
+
             final_dates = list(dates.keys())
             final_dates.sort()
             return Response(final_dates)
