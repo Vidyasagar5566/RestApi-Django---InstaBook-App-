@@ -16,7 +16,7 @@ import random
 import uuid
 from firebase_admin.messaging import Message, Notification
 from firebase_admin import messaging
-from fcm_django.models import FCMDevice
+# from fcm_django.models import FCMDevice
 from django.db.models import Q
 from django.utils.timezone import localtime
 from api2 import models as api2_models
