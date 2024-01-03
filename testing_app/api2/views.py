@@ -23,6 +23,33 @@ from django.utils import timezone
 
 
 
+from firebase_admin import initialize_app
+from firebase_admin import credentials
+import os
+os.environ[
+    "GOOGLE_APPLICATION_CREDENTIALS"
+] = "/home/StudentCommunity/RestApi-Django---InstaBook-App-/testing_app/api2/serviceAccountKey.json"
+FIREBASE_APP = initialize_app()
+FCM_DJANGO_SETTINGS = {
+    # an instance of firebase_admin.App to be used as default for all fcm-django requests
+    # default: None (the default Firebase app)
+    "DEFAULT_FIREBASE_APP": None,
+    # default: _('FCM Django')
+    "APP_VERBOSE_NAME": "[string for AppConfig's verbose_name]",
+    # true if you want to have only one active device per registered user at a time
+    # default: False
+    "ONE_DEVICE_PER_USER": False,
+    # devices to which notifications cannot be sent,
+    # are deleted upon receiving error response from FCM
+    # default: False
+    "DELETE_INACTIVE_DEVICES": False,
+    # Transform create of an existing Device (based on registration id) into
+    # an update. See the section
+    # "Update of device with duplicate registration ID" for more details.
+    # default: False
+    "UPDATE_ON_DUPLICATE_REG_ID": False,
+}
+
 #        user = request.user
 #        data = request.data
 #        data = request.query_params
@@ -32,74 +59,6 @@ from django.utils import timezone
 datetime_weight = 0.6
 like_weight = 0.2
 comment_weight = 0.3
-
-domains = {
-
-'nitt.edu'  : 'Nit Trichy',
-'nitk.edu.in' : 'Nit Surathkal',
-'nitrkl.ac.in' : 'Nit Rourkela',
-'nitw.ac.in': ' Nit Warangal',
-'nitc.ac.in'   :'Nit Calicut',
-'vnit.ac.in':  'Nit Nagpur',
-'nitdgp.ac.in' :  'Nit Durgapur',
-'nits.ac.in':    'Nit Silchar',
-'mnit.ac.in':   'Nit Jaipur',
-'mnnit.ac.in' : 'Nit Allahabad',
-'nitkkr.ac.in':   'Nit Kurukshetra',
-'nitj.ac.in'  :' Nit Jalandhar',
-'svnit.ac.in': ' Nit Surat',
-'nitm.ac.in' : 'Nit Meghalaya',
-'nitp.ac.in' : 'Nit Patna',
-'nitrr.ac.in' : 'Nit Raipur',
-'nitsri.ac.in' : 'Nit Srinagar',
-'manit.ac.in'  :'Nit Bhopal',
-'nita.ac.in'  :'Nit Agarthala',
-'nitgoa.ac.in' :  'Nit Goa',
-'nitjsr.ac.in' : 'Nit Jamshedpur',
-'nitmanipur.ac.in':  'Nit Manipur',
-'nith.ac.in'   : 'Nit Hamper',
-'nituk.ac.in'  : ' Nit Uttarakhand',
-'nitpy.ac.in' : 'Nit Puducherry',
-'nitap.ac.in' : 'Nit ArunaChalPradesh',
-'nitsikkim.ac.in':  'Nit Sikkim',
-'nitdelhi.ac.in' : 'Nit Delhi',
-'nitmz.ac.in': 'Nit Mizoram',
-'nitnagaland.ac.in' : 'Nit Nagaland',
-'nitandhra.ac.in' : 'Nit AndhraPradesh',
-
-
-
-##IITS
-
-'iitm.ac.in' : 'IIT Madras',
-'iitd.ac.in' : 'IIT Delhi',
-'iitb.ac.in' : 'IIT Bombay',
-'iitk.ac.in' : 'IIT Kanpur',
-'iitr.ac.in' : 'IITR Rookee',
-'iitkgp.ac.in' : 'IIT Kharagpur',
-'iitg.ac.in' : 'IIT Guwahati',
-'iith.ac.in' : 'IIT Hyderabad',
-'iitbhu.ac.in' :  'IIT BHU',
-'iitism.ac.in'  :  'IIT ISM Dhanbad',
-'iiti.ac.in'  : 'IIT Indore',
-'iitrpr.ac.in'  : 'IIT Rupar',
-'iitmandi.ac.in' :   'IIT Mandi',
-'iitgn.ac.in'   :  'IIT Gandhinagar',
-'iitj.ac.in'   : 'IIT Jodhpur',
-'iitp.ac.in'   :     'IIT Patna',
-'iitbbs.ac.in'  :   'IIT Bhubaneswar',
-'iittp.ac.in'   :  'IIT Tirupati',
-'iitpkd.ac.in'  :  'IIT Palakkad',
-'iitjammu.ac.in' :   'IIT Jammu',
-'iitdh.ac.in'    : 'IIT Dharwad',
-'iitbhilai.ac.in'  :  'IIT Bhilai'
-
-    }
-
-
-
-
-
 
 
 def team_members_transfer(old_team_mem,new_team_mem,id,category,name):
@@ -196,15 +155,15 @@ class SendNotifications(APIView):
         if data['notiff_sett'] == 1:
             filter_notifications = api_models.FilterNotifications.objects.filter(lst_buy = True,domain = user.domain)
         elif data['notiff_sett'] == 2:
-            filter_notifications = api_models.FilterNotifications.objects.filter(posts = True)#,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(posts = True,domain = user.domain)
         elif data['notiff_sett'] == 3:
-            filter_notifications = api_models.FilterNotifications.objects.filter(posts_admin = True)#,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(posts_admin = True,domain = user.domain)
         elif data['notiff_sett'] == 4:
-            filter_notifications = api_models.FilterNotifications.objects.filter(events = True)#,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(events = True,domain = user.domain)
         elif data['notiff_sett'] == 5:
-            filter_notifications = api_models.FilterNotifications.objects.filter(threads = True)#,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(threads = True,domain = user.domain)
         elif data['notiff_sett'] == 6:
-            filter_notifications = api_models.FilterNotifications.objects.filter(comments = True)#,domain = user.domain)
+            filter_notifications = api_models.FilterNotifications.objects.filter(comments = True,domain = user.domain)
 
         fcm_tokens = []
         for i in filter_notifications:
@@ -322,8 +281,14 @@ class ALLCLUBS_list(APIView):
             new_club = models.AllClubs.objects.get(id = int(data['id']))
             new_head = User.objects.get(email = data['new_head_email'])
             new_club.head = new_head
-            del[user.clz_clubs['head'][str(data['id'])]]
-            new_head.clz_clubs['head'][str(data['id'])] = new_club.name
+            try:
+                del[user.clz_clubs['head'][str(data['id'])]]
+            except:
+                a = 0
+            try:
+                new_head.clz_clubs['head'][str(data['id'])] = new_club.name
+            except:
+                a = 0
             user.save()
             new_head.save()
             new_club.save()
@@ -480,11 +445,18 @@ class ALLSPORTS_list(APIView):
             new_sport = models.AllSports.objects.get(id = data['id'])
             new_head = User.objects.get(email = data['new_head_email'])
             new_sport.head = new_head
-            new_sport.save()
-            del[user.clz_sports['head'][str(data['id'])]]
+            try:
+                del[user.clz_sports['head'][str(data['id'])]]
+            except:
+                a = 0
+            try:
+                new_head.clz_sports['head'][str(data['id'])] = new_sport.name
+            except:
+                a = 0
             user.save()
-            new_head.clz_sports['head'][str(data['id'])] = new_sport.name
             new_head.save()
+            new_sport.save()
+
 
         except:
             error = True
@@ -635,11 +607,18 @@ class ALLFESTS_list(APIView):
             new_fest = models.AllFests.objects.get(id = data['id'])
             new_head = User.objects.get(email = data['new_head_email'])
             new_fest.head = new_head
-            new_fest.save()
-            del[user.clz_fests['head'][str(data['id'])]]
+            try:
+                del[user.clz_fests['head'][str(data['id'])]]
+            except:
+                a = 0
+            try:
+                new_head.clz_fests['head'][str(data['id'])] = new_fest.name
+            except:
+                a = 0
             user.save()
-            new_head.clz_fests['head'][str(data['id'])] = new_fest.name
+            new_fest.save()
             new_head.save()
+
 
         except:
             error = True
@@ -776,11 +755,17 @@ class SAC_list(APIView):
             sac = models.SAC_MEMS.objects.get(id = data['id'])
             new_head = User.objects.get(email = data['new_head_email'])
             sac.head = new_head
-            sac.save()
-            del[user.clz_sacs['head'][str(data['id'])]]
+            try:
+                del[user.clz_sacs['head'][str(data['id'])]]
+            except:
+                a = 0
+            try:
+                new_head.clz_sacs['head'][str(data['id'])] = sac.role
+            except:
+                a = 0
             user.save()
-            new_head.clz_sacs['head'][str(data['id'])] = sac.role
             new_head.save()
+            sac.save()
 
         except:
             error = True

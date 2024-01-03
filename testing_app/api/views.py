@@ -91,61 +91,62 @@ domains = {
 
 
 domains1 = {
-    "nitt.edu": "Nit Trichy",
-    "nitk.edu.in": "Nit Surathkal",
-    "nitrkl.ac.in": "Nit Rourkela",
-    "nitw.ac.in": "Nit Warangal",
-    "nitc.ac.in": "Nit Calicut",
-    "vnit.ac.in": "Nit Nagpur",
-    "nitdgp.ac.in": "Nit Durgapur",
-    "nits.ac.in": "Nit Silchar",
-    "mnit.ac.in": "Nit Jaipur",
-    "mnnit.ac.in": "Nit Allahabad",
-    "nitkkr.ac.in": "Nit Kurukshetra",
-    "nitj.ac.in": "Nit Jalandhar",
-    "svnit.ac.in": "Nit Surat",
-    "nitm.ac.in": "Nit Meghalaya",
-    "nitp.ac.in": "Nit Patna",
-    "nitrr.ac.in": "Nit Raipur",
-    "nitsri.ac.in": "Nit Srinagar",
-    "manit.ac.in": "Nit Bhopal",
-    "nita.ac.in": "Nit Agarthala",
-    "nitgoa.ac.in": "Nit Goa",
-    "nitjsr.ac.in": "Nit Jamshedpur",
-    "nitmanipur.ac.in": "Nit Manipur",
-    "nith.ac.in": "Nit Hamipur",
-    "nituk.ac.in": "Nit Uttarakhand",
-    "nitpy.ac.in": "Nit Puducherry",
-    "nitap.ac.in": "Nit ArunaChalPradesh",
-    "nitsikkim.ac.in": "Nit Sikkim",
-    "nitdelhi.ac.in": "Nit Delhi",
-    "nitmz.ac.in": "Nit Mizoram",
-    "nitnagaland.ac.in": "Nit Nagaland",
-    "nitandhra.ac.in": "Nit AndhraPradesh",
-    ##IITS
-    "iitm.ac.in": "IIT Madras",
-    "iitd.ac.in": "IIT Delhi",
-    "iitb.ac.in": "IIT Bombay",
-    "iitk.ac.in": "IIT Kanpur",
-    "iitr.ac.in": "IITR Rookee",
-    "iitkgp.ac.in": "IIT Kharagpur",
-    "iitg.ac.in": "IIT Guwahati",
-    "iith.ac.in": "IIT Hyderabad",
-    "iitbhu.ac.in": "IIT BHU",
-    "iitism.ac.in": "IIT ISM Dhanbad",
-    "iiti.ac.in": "IIT Indore",
-    "iitrpr.ac.in": "IIT Rupar",
-    "iitmandi.ac.in": "IIT Mandi",
-    "iitgn.ac.in": "IIT Gandhinagar",
-    "iitj.ac.in": "IIT Jodhpur",
-    "iitp.ac.in": "IIT Patna",
-    "iitbbs.ac.in": "IIT Bhubaneswar",
-    "iittp.ac.in": "IIT Tirupati",
-    "iitpkd.ac.in": "IIT Palakkad",
-    "iitjammu.ac.in": "IIT Jammu",
-    "iitdh.ac.in": "IIT Dharwad",
-    "iitbhilai.ac.in": "IIT Bhilai",
-}
+  'All': 'All',
+  '@nitt.edu': 'Nit Trichy',
+  '@nitk.edu.in': 'Nit Surathkal',
+  '@nitrkl.ac.in': 'Nit Rourkela',
+  '@nitw.ac.in': 'Nit Warangal',
+  '@nitc.ac.in': 'Nit Calicut',
+  '@vnit.ac.in': 'Nit Nagpur',
+  '@nitdgp.ac.in': 'Nit Durgapur',
+  '@nits.ac.in': 'Nit Silchar',
+  '@mnit.ac.in': 'Nit Jaipur',
+  '@mnnit.ac.in': 'Nit Allahabad',
+  '@nitkkr.ac.in': 'Nit Kurukshetra',
+  '@nitj.ac.in': 'Nit Jalandhar',
+  '@svnit.ac.in': 'Nit Surat',
+  '@nitm.ac.in': 'Nit Meghalaya',
+  '@nitp.ac.in': 'Nit Patna',
+  '@nitrr.ac.in': 'Nit Raipur',
+  '@nitsri.ac.in': 'Nit Srinagar',
+  '@manit.ac.in': 'Nit Bhopal',
+  '@nita.ac.in': 'Nit Agarthala',
+  '@nitgoa.ac.in': 'Nit Goa',
+  '@nitjsr.ac.in': 'Nit Jamshedpur',
+  '@nitmanipur.ac.in': 'Nit Manipur',
+  '@nith.ac.in': 'Nit Hamipur',
+  '@nituk.ac.in': 'Nit Uttarakhand',
+  '@nitpy.ac.in': 'Nit Puducherry',
+  '@nitap.ac.in': 'Nit ArunaChalPradesh',
+  '@nitsikkim.ac.in': 'Nit Sikkim',
+  '@nitdelhi.ac.in': 'Nit Delhi',
+  '@nitmz.ac.in': 'Nit Mizoram',
+  '@nitnagaland.ac.in': 'Nit Nagaland',
+  '@nitandhra.ac.in': 'Nit AndhraPradesh',
+#IITS
+  '@iitm.ac.in': 'IIT Madras',
+  '@iitd.ac.in': 'IIT Delhi',
+  '@iitb.ac.in': 'IIT Bombay',
+  '@iitk.ac.in': 'IIT Kanpur',
+  '@iitr.ac.in': 'IITR Rookee',
+  '@iitkgp.ac.in': 'IIT Kharagpur',
+  '@iitg.ac.in': 'IIT Guwahati',
+  '@iith.ac.in': 'IIT Hyderabad',
+  '@iitbhu.ac.in': 'IIT BHU',
+  '@iitism.ac.in': 'IIT ISM Dhanbad',
+  '@iiti.ac.in': 'IIT Indore',
+  '@iitrpr.ac.in': 'IIT Rupar',
+  '@iitmandi.ac.in': 'IIT Mandi',
+  '@iitgn.ac.in': 'IIT Gandhinagar',
+  '@iitj.ac.in': 'IIT Jodhpur',
+  '@iitp.ac.in': 'IIT Patna',
+  '@iitbbs.ac.in': 'IIT Bhubaneswar',
+  '@iittp.ac.in': 'IIT Tirupati',
+  '@iitpkd.ac.in': 'IIT Palakkad',
+  '@iitjammu.ac.in': 'IIT Jammu',
+  '@iitdh.ac.in': 'IIT Dharwad',
+  '@iitbhilai.ac.in': 'IIT Bhilai',
+};
 
 
 class testing(APIView):
@@ -153,15 +154,17 @@ class testing(APIView):
         error = False
         password = ""
         try:
-            users = User.objects.get(username="gautham")
+            users = User.objects.get(username="shiva")
+            serializer = serializers.UserSerializer(user)
+            return Response(serializer.data)
             # for i in users:
             #     if i.platform == "android":
             #         i.update_mark = "instabook4"
             #         i.save()
-            placements = models.BranchSub.objects.filter(sub_id = "CPC",domain = "@nitc.ac.in")
-            for i in placements:
-                i.InternCompany = False
-                i.save()
+            # placements = models.BranchSub.objects.filter(sub_id = "CPC",domain = "@nitc.ac.in")
+            # for i in placements:
+            #     i.InternCompany = False
+            #     i.save()
 
         except:
             error = True

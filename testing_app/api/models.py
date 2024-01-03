@@ -401,7 +401,7 @@ class BranchSubYears(models.Model):
     InternCompany = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ['-year_name']
+        ordering = ['-sub_name']
 
     def __str__(self):
         return str(self.sub_name)
@@ -420,10 +420,10 @@ class BranchSubFiles(models.Model):
     domain = models.TextField(default="@nitc.ac.in")
 
     class Meta:
-        ordering = ['-file_name']
+        ordering = ['-username']
 
     def __str__(self):
-        return str(self.year_id)
+        return str(self.username)
 
 
 class Ratings(models.Model):
