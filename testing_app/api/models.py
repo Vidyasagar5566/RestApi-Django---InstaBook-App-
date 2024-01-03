@@ -16,7 +16,7 @@ class User(AbstractUser):
     user_uuid =  models.UUIDField(default=uuid.uuid4)
 
     email = models.CharField(default="",max_length=100,unique = True)
-    username = models.CharField(default="-",max_length=100,unique = True)
+    username = models.CharField(default="-",max_length=100)
     password1 = models.CharField(default="@Vidyasag1234",max_length=100)
 
     roll_num = models.CharField(default="",max_length=100)
