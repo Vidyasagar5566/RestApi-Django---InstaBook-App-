@@ -123,7 +123,7 @@ WSGI_APPLICATION = "testing_app.wsgi.application"
 #}
 
 
- DATABASES = {
+DATABASES = {
      "default": {
          "ENGINE": "django.db.backends.mysql",
          "NAME": "ESMUS",
@@ -132,7 +132,7 @@ WSGI_APPLICATION = "testing_app.wsgi.application"
          "HOST": "esmus.c2xpl2fmhzxv.ap-southeast-1.rds.amazonaws.com",
          "PORT": "3306",
      }
- }
+}
 
 
 # Password validation
