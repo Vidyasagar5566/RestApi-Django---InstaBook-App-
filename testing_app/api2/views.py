@@ -28,7 +28,7 @@ from firebase_admin import credentials
 import os
 os.environ[
     "GOOGLE_APPLICATION_CREDENTIALS"
-] = "/home/StudentCommunity/RestApi-Django---InstaBook-App-/testing_app/api2/serviceAccountKey.json"
+] = "/home/ubuntu/RestApi-Django---InstaBook-App-/testing_app/api2/serviceAccountKey.json"
 FIREBASE_APP = initialize_app()
 # FCM_DJANGO_SETTINGS = {
 #     # an instance of firebase_admin.App to be used as default for all fcm-django requests
@@ -110,19 +110,19 @@ class testing_api2(APIView):
         error = False
         password = ""
         try:
-
-            # user = User.objects.get(email = "shiva@gmail.com")
+           
+#            user = User.objects.get(email = "buddala_b190838ec@nitc.ac.in")
             # users = User.objects.all()
 
+            bulk_notifications(["dTjOZW_WQuOUUVjTwIGqsZ:APA91bEEUsNeQR_SJzNuCRbSYNTdaS9T0oiFsuG-FqRv8KRJUMkzFrqGJRpUkPnPrVuArJsheLkh1bSYeiKyLsgd5FTAKIC6P9DX0-AELFHGryrQ88R-_Ea27WPcacEyCZaXWg5RlpMl"],'efsd','efsdg')
+#            data = models.DatingUser.objects.all()
+#            serializer = serializers.DatingUserSerializer(data,many = True)
+#            return Response(serializer.data)
 
-            data = models.DatingUser.objects.all()
-            serializer = serializers.DatingUserSerializer(data,many = True)
-            return Response(serializer.data)
-
-
+#            a = 0
         except:
             error = True
-        return Response({"error":error,"password":a})
+        return Response({"error":error,"password":"efrg"})
 
 
 
@@ -135,7 +135,7 @@ def bulk_notifications(fcm_tokens,title,description):
                     body=description
                     ),
                     tokens=fcm_tokens[i*100:(i+1)*100],
-                    data={"key1": "value1", "key2": "value2"},
+#                    data={"key1": "value1", "key2": "value2"},
                     )
         messaging.send_multicast(message)
 
