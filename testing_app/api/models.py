@@ -115,10 +115,16 @@ class FilterNotifications(models.Model):
 class Universities(models.Model):
     unvName = models.CharField(max_length=100, default="")
     unvLocation = models.CharField(max_length=100, default="")
-    unvPic = models.FileField(upload_to="pg", default="static/img.png")  #posts 
+    unvPic = models.FileField(upload_to="pg", default="static/img.png")  # posts
     univPicRatio = models.IntegerField(default=0)
     joinedDate = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
+
+    class Meta:
+        ordering = ["-joinedDate"]
+
+    def __str__(self):
+        return str(self.unvName)
 
 
 class PostTable(models.Model):
