@@ -272,7 +272,7 @@ class GET_token(APIView):
             error = True
         return Response({"error": error})
 
-    def put(self, request):
+    def get(self, request):
         return Response(domains1)
 
 
