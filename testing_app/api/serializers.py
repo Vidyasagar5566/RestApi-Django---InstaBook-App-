@@ -1,7 +1,8 @@
 from rest_framework.serializers import ModelSerializer
 from . import models
 from django.contrib.auth import get_user_model
-#from .models import customUser
+
+# from .models import customUser
 User = get_user_model()
 from api2 import models as api2_models
 
@@ -15,7 +16,19 @@ class UserSerializer(ModelSerializer):
 class SmallUserSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ['user_uuid','username','domain','email','user_mark','star_mark','profile_pic','phn_num','file_type','is_admin','is_student_admin']
+        fields = [
+            "user_uuid",
+            "username",
+            "domain",
+            "email",
+            "user_mark",
+            "star_mark",
+            "profile_pic",
+            "phn_num",
+            "file_type",
+            "is_admin",
+            "is_student_admin",
+        ]
 
 
 class FilterNotificationsSerializer(ModelSerializer):
@@ -31,7 +44,7 @@ class Lost_FoundSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
+        response["username"] = SmallUserSerializer(instance.username).data
         return response
 
 
@@ -42,7 +55,7 @@ class LST_CommentsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
+        response["username"] = SmallUserSerializer(instance.username).data
         return response
 
 
@@ -53,7 +66,7 @@ class Buy_SellSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
+        response["username"] = SmallUserSerializer(instance.username).data
         return response
 
 
@@ -64,8 +77,9 @@ class BS_CommentsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
+        response["username"] = SmallUserSerializer(instance.username).data
         return response
+
 
 class PostTableSerializer(ModelSerializer):
     class Meta:
@@ -74,16 +88,17 @@ class PostTableSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
-        if response['category'] == "club":
-            response['club'] = AllClubs1Serializer(instance.club).data
-        elif response['category'] == "sport":
-            response['sport'] = AllSports1Serializer(instance.sport).data
-        elif response['category'] == "fest":
-            response['fest'] = AllFests1Serializer(instance.fest).data
-        elif response['category'] == "sac":
-            response['sac'] = SAC_MEMS1Serializer(instance.sac).data
+        response["username"] = SmallUserSerializer(instance.username).data
+        if response["category"] == "club":
+            response["club"] = AllClubs1Serializer(instance.club).data
+        elif response["category"] == "sport":
+            response["sport"] = AllSports1Serializer(instance.sport).data
+        elif response["category"] == "fest":
+            response["fest"] = AllFests1Serializer(instance.fest).data
+        elif response["category"] == "sac":
+            response["sac"] = SAC_MEMS1Serializer(instance.sac).data
         return response
+
 
 class post_CommentsSerializer(ModelSerializer):
     class Meta:
@@ -92,8 +107,9 @@ class post_CommentsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
+        response["username"] = SmallUserSerializer(instance.username).data
         return response
+
 
 class EventsSerializer(ModelSerializer):
     class Meta:
@@ -102,15 +118,15 @@ class EventsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
-        if response['category'] == "club":
-            response['club'] = AllClubs1Serializer(instance.club).data
-        elif response['category'] == "sport":
-            response['sport'] = AllSports1Serializer(instance.sport).data
-        elif response['category'] == "fest":
-            response['fest'] = AllFests1Serializer(instance.fest).data
-        elif response['category'] == "sac":
-            response['sac'] = SAC_MEMS1Serializer(instance.sac).data
+        response["username"] = SmallUserSerializer(instance.username).data
+        if response["category"] == "club":
+            response["club"] = AllClubs1Serializer(instance.club).data
+        elif response["category"] == "sport":
+            response["sport"] = AllSports1Serializer(instance.sport).data
+        elif response["category"] == "fest":
+            response["fest"] = AllFests1Serializer(instance.fest).data
+        elif response["category"] == "sac":
+            response["sac"] = SAC_MEMS1Serializer(instance.sac).data
         return response
 
 
@@ -121,8 +137,9 @@ class EventsLikeSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
+        response["username"] = SmallUserSerializer(instance.username).data
         return response
+
 
 class AlertsSerializer(ModelSerializer):
     class Meta:
@@ -131,18 +148,18 @@ class AlertsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
-        if response['category'] == "club":
-            response['club'] = AllClubs1Serializer(instance.club).data
-        elif response['category'] == "sport":
-            response['sport'] = AllSports1Serializer(instance.sport).data
-        elif response['category'] == "fest":
-            response['fest'] = AllFests1Serializer(instance.fest).data
-        elif response['category'] == "sac":
-            response['sac'] = SAC_MEMS1Serializer(instance.sac).data
-
+        response["username"] = SmallUserSerializer(instance.username).data
+        if response["category"] == "club":
+            response["club"] = AllClubs1Serializer(instance.club).data
+        elif response["category"] == "sport":
+            response["sport"] = AllSports1Serializer(instance.sport).data
+        elif response["category"] == "fest":
+            response["fest"] = AllFests1Serializer(instance.fest).data
+        elif response["category"] == "sac":
+            response["sac"] = SAC_MEMS1Serializer(instance.sac).data
 
         return response
+
 
 class Alert_CommentsSerializer(ModelSerializer):
     class Meta:
@@ -151,10 +168,8 @@ class Alert_CommentsSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
+        response["username"] = SmallUserSerializer(instance.username).data
         return response
-
-
 
 
 class Post_LikeSerializer(ModelSerializer):
@@ -164,8 +179,9 @@ class Post_LikeSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = UserSerializer(instance.username).data
+        response["username"] = UserSerializer(instance.username).data
         return response
+
 
 class MessangerSerializer(ModelSerializer):
     class Meta:
@@ -174,9 +190,12 @@ class MessangerSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['message_sender'] = SmallUserSerializer(instance.message_sender).data
-        response['message_receiver'] = SmallUserSerializer(instance.message_receiver).data
+        response["message_sender"] = SmallUserSerializer(instance.message_sender).data
+        response["message_receiver"] = SmallUserSerializer(
+            instance.message_receiver
+        ).data
         return response
+
 
 class MessagesSerializer(ModelSerializer):
     class Meta:
@@ -185,9 +204,14 @@ class MessagesSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['message_sender'] = SmallUserSerializer(instance.message_sender).data['email']
-        response['message_receiver'] = SmallUserSerializer(instance.message_receiver).data['email']
+        response["message_sender"] = SmallUserSerializer(instance.message_sender).data[
+            "email"
+        ]
+        response["message_receiver"] = SmallUserSerializer(
+            instance.message_receiver
+        ).data["email"]
         return response
+
 
 class CALENDER_EVENTSerializer(ModelSerializer):
     class Meta:
@@ -196,10 +220,8 @@ class CALENDER_EVENTSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['username'] = SmallUserSerializer(instance.username).data
+        response["username"] = SmallUserSerializer(instance.username).data
         return response
-
-
 
 
 ### SERIALIZERS FOR POST OF CLUB/FEST/SPORT/SAC
@@ -212,7 +234,7 @@ class AllClubs1Serializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['head'] = None
+        response["head"] = None
         return response
 
 
@@ -223,7 +245,7 @@ class SAC_MEMS1Serializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['head'] = None
+        response["head"] = None
         return response
 
 
@@ -234,9 +256,8 @@ class AllSports1Serializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['head'] = None
+        response["head"] = None
         return response
-
 
 
 class AllFests1Serializer(ModelSerializer):
@@ -246,24 +267,11 @@ class AllFests1Serializer(ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['head'] = None
+        response["head"] = None
         return response
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+class UniversitiesSerializer(ModelSerializer):
+    class Meta:
+        model = models.Universities
+        fields = "__all__"

@@ -273,7 +273,9 @@ class GET_token(APIView):
         return Response({"error": error})
 
     def get(self, request):
-        return Response(domains1)
+        universities = models.Universities.objects.all()
+        serializer = serializers.UniversitiesSerializer(universities)
+        return Response(serializer.data)
 
 
 class GET_user(APIView):
