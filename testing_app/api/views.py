@@ -16,6 +16,7 @@ import random
 import uuid
 from firebase_admin.messaging import Message, Notification
 from firebase_admin import messaging
+
 # from fcm_django.models import FCMDevice
 from django.db.models import Q
 from django.utils.timezone import localtime
@@ -91,62 +92,62 @@ domains = {
 
 
 domains1 = {
-  'All': 'All',
-  '@nitt.edu': 'Nit Trichy',
-  '@nitk.edu.in': 'Nit Surathkal',
-  '@nitrkl.ac.in': 'Nit Rourkela',
-  '@nitw.ac.in': 'Nit Warangal',
-  '@nitc.ac.in': 'Nit Calicut',
-  '@vnit.ac.in': 'Nit Nagpur',
-  '@nitdgp.ac.in': 'Nit Durgapur',
-  '@nits.ac.in': 'Nit Silchar',
-  '@mnit.ac.in': 'Nit Jaipur',
-  '@mnnit.ac.in': 'Nit Allahabad',
-  '@nitkkr.ac.in': 'Nit Kurukshetra',
-  '@nitj.ac.in': 'Nit Jalandhar',
-  '@svnit.ac.in': 'Nit Surat',
-  '@nitm.ac.in': 'Nit Meghalaya',
-  '@nitp.ac.in': 'Nit Patna',
-  '@nitrr.ac.in': 'Nit Raipur',
-  '@nitsri.ac.in': 'Nit Srinagar',
-  '@manit.ac.in': 'Nit Bhopal',
-  '@nita.ac.in': 'Nit Agarthala',
-  '@nitgoa.ac.in': 'Nit Goa',
-  '@nitjsr.ac.in': 'Nit Jamshedpur',
-  '@nitmanipur.ac.in': 'Nit Manipur',
-  '@nith.ac.in': 'Nit Hamipur',
-  '@nituk.ac.in': 'Nit Uttarakhand',
-  '@nitpy.ac.in': 'Nit Puducherry',
-  '@nitap.ac.in': 'Nit ArunaChalPradesh',
-  '@nitsikkim.ac.in': 'Nit Sikkim',
-  '@nitdelhi.ac.in': 'Nit Delhi',
-  '@nitmz.ac.in': 'Nit Mizoram',
-  '@nitnagaland.ac.in': 'Nit Nagaland',
-  '@nitandhra.ac.in': 'Nit AndhraPradesh',
-#IITS
-  '@iitm.ac.in': 'IIT Madras',
-  '@iitd.ac.in': 'IIT Delhi',
-  '@iitb.ac.in': 'IIT Bombay',
-  '@iitk.ac.in': 'IIT Kanpur',
-  '@iitr.ac.in': 'IITR Rookee',
-  '@iitkgp.ac.in': 'IIT Kharagpur',
-  '@iitg.ac.in': 'IIT Guwahati',
-  '@iith.ac.in': 'IIT Hyderabad',
-  '@iitbhu.ac.in': 'IIT BHU',
-  '@iitism.ac.in': 'IIT ISM Dhanbad',
-  '@iiti.ac.in': 'IIT Indore',
-  '@iitrpr.ac.in': 'IIT Rupar',
-  '@iitmandi.ac.in': 'IIT Mandi',
-  '@iitgn.ac.in': 'IIT Gandhinagar',
-  '@iitj.ac.in': 'IIT Jodhpur',
-  '@iitp.ac.in': 'IIT Patna',
-  '@iitbbs.ac.in': 'IIT Bhubaneswar',
-  '@iittp.ac.in': 'IIT Tirupati',
-  '@iitpkd.ac.in': 'IIT Palakkad',
-  '@iitjammu.ac.in': 'IIT Jammu',
-  '@iitdh.ac.in': 'IIT Dharwad',
-  '@iitbhilai.ac.in': 'IIT Bhilai',
-};
+    "All": "All",
+    "@nitt.edu": "Nit Trichy",
+    "@nitk.edu.in": "Nit Surathkal",
+    "@nitrkl.ac.in": "Nit Rourkela",
+    "@nitw.ac.in": "Nit Warangal",
+    "@nitc.ac.in": "Nit Calicut",
+    "@vnit.ac.in": "Nit Nagpur",
+    "@nitdgp.ac.in": "Nit Durgapur",
+    "@nits.ac.in": "Nit Silchar",
+    "@mnit.ac.in": "Nit Jaipur",
+    "@mnnit.ac.in": "Nit Allahabad",
+    "@nitkkr.ac.in": "Nit Kurukshetra",
+    "@nitj.ac.in": "Nit Jalandhar",
+    "@svnit.ac.in": "Nit Surat",
+    "@nitm.ac.in": "Nit Meghalaya",
+    "@nitp.ac.in": "Nit Patna",
+    "@nitrr.ac.in": "Nit Raipur",
+    "@nitsri.ac.in": "Nit Srinagar",
+    "@manit.ac.in": "Nit Bhopal",
+    "@nita.ac.in": "Nit Agarthala",
+    "@nitgoa.ac.in": "Nit Goa",
+    "@nitjsr.ac.in": "Nit Jamshedpur",
+    "@nitmanipur.ac.in": "Nit Manipur",
+    "@nith.ac.in": "Nit Hamipur",
+    "@nituk.ac.in": "Nit Uttarakhand",
+    "@nitpy.ac.in": "Nit Puducherry",
+    "@nitap.ac.in": "Nit ArunaChalPradesh",
+    "@nitsikkim.ac.in": "Nit Sikkim",
+    "@nitdelhi.ac.in": "Nit Delhi",
+    "@nitmz.ac.in": "Nit Mizoram",
+    "@nitnagaland.ac.in": "Nit Nagaland",
+    "@nitandhra.ac.in": "Nit AndhraPradesh",
+    # IITS
+    "@iitm.ac.in": "IIT Madras",
+    "@iitd.ac.in": "IIT Delhi",
+    "@iitb.ac.in": "IIT Bombay",
+    "@iitk.ac.in": "IIT Kanpur",
+    "@iitr.ac.in": "IITR Rookee",
+    "@iitkgp.ac.in": "IIT Kharagpur",
+    "@iitg.ac.in": "IIT Guwahati",
+    "@iith.ac.in": "IIT Hyderabad",
+    "@iitbhu.ac.in": "IIT BHU",
+    "@iitism.ac.in": "IIT ISM Dhanbad",
+    "@iiti.ac.in": "IIT Indore",
+    "@iitrpr.ac.in": "IIT Rupar",
+    "@iitmandi.ac.in": "IIT Mandi",
+    "@iitgn.ac.in": "IIT Gandhinagar",
+    "@iitj.ac.in": "IIT Jodhpur",
+    "@iitp.ac.in": "IIT Patna",
+    "@iitbbs.ac.in": "IIT Bhubaneswar",
+    "@iittp.ac.in": "IIT Tirupati",
+    "@iitpkd.ac.in": "IIT Palakkad",
+    "@iitjammu.ac.in": "IIT Jammu",
+    "@iitdh.ac.in": "IIT Dharwad",
+    "@iitbhilai.ac.in": "IIT Bhilai",
+}
 
 
 class testing(APIView):
@@ -270,6 +271,9 @@ class GET_token(APIView):
         except:
             error = True
         return Response({"error": error})
+
+    def put(self, request):
+        return Response(domains1)
 
 
 class GET_user(APIView):
