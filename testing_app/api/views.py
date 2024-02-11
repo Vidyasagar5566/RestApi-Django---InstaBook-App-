@@ -274,7 +274,7 @@ class GET_token(APIView):
 
     def get(self, request):
         universities = models.Universities.objects.all()
-        serializer = serializers.UniversitiesSerializer(universities)
+        serializer = serializers.UniversitiesSerializer(universities, many=True)
         return Response(serializer.data)
 
 
