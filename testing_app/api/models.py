@@ -120,6 +120,14 @@ class Universities(models.Model):
     joinedDate = models.DateTimeField(default=datetime.now)
     domain = models.TextField(default="@nitc.ac.in")
 
+    Rating = models.FloatField(default=4.0)
+    totalRatings = models.IntegerField(default=100)
+    about = models.TextField(default="Not Updated")
+    courses = models.TextField(default="Not Updated")
+    fees = models.TextField(default="Not Updated")
+    placements = models.TextField(default="Not Updated")
+    hostels = models.TextField(default="Not Updated")
+
     class Meta:
         ordering = ["-joinedDate"]
 
