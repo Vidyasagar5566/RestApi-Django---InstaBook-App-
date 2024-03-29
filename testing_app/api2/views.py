@@ -29,7 +29,7 @@ from firebase_admin import credentials
 import os
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
-    "/home/ubuntu/RestApi-Django---InstaBook-App-/testing_app/api2/serviceAccountKey.json"
+    "/home/StudentCommunity/RestApi-Django---InstaBook-App-/testing_app/api2/serviceAccountKey.json"
 )
 FIREBASE_APP = initialize_app()
 # FCM_DJANGO_SETTINGS = {
